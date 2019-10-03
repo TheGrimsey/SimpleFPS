@@ -8,6 +8,7 @@
 
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "HealthComponent.h"
 
 
@@ -22,9 +23,14 @@ AProjectile::AProjectile()
 
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 
+    SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collider"));
+    SphereCollider->SetSimulatePhysics(true);
+    SphereCollider->SetCollisionProfileName(FName(TEXT("BlockAllDynamic")));
+    SphereCollider->SetSphereRadius(50.f);
+
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 
-    SetRootComponent(MeshComponent);
+    SetRootComponent(SphereCollider);
 }
 
 // Called when the game starts or when spawned
@@ -57,6 +63,8 @@ void AProjectile::Explode()
             }
         }
     }
+
+    UE_LOG(LogTemp, Log, TEXT("%s exploded!"), *GetName());
 }
 
 void AProjectile::SetForwardVelocity(float Velocity)

@@ -133,8 +133,14 @@ void ASimpleFPSCharacter::MoveRight(float Value)
     }
 }
 
-FTransform ASimpleFPSCharacter::GetPointOfView()
+FTransform ASimpleFPSCharacter::GetFireTransform()
 {
-    return FTransform(GetControlRotation(), CameraComponent->GetComponentLocation());
+    //Rotation. Just our controller rotation.
+    FRotator Rotation = GetControlRotation();
+
+    //Location. We add our capsule radius onto it so it doesn't get stuck in us.
+    FVector Location = CameraComponent->GetComponentLocation() + GetControlRotation().RotateVector(FVector(GetCapsuleComponent()->GetScaledCapsuleRadius(), 0.f, 0.f));
+
+    return FTransform(Rotation, Location);
 }
 

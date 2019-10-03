@@ -38,8 +38,8 @@ public:
     //Handles Right movement input.
     void MoveRight(float Value);
 
-    //Returns the location of our view (camera) and the rotation of it (Controller rotation)
-    FTransform GetPointOfView();
+    //Returns the transform from which our bullets should come from.
+    FTransform GetFireTransform();
 
     /*
     *   Variables

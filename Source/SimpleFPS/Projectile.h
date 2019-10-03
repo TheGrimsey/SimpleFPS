@@ -31,13 +31,17 @@ public:
     /*
     *   Variables
     */
-protected:
+public:
     UPROPERTY(EditAnywhere)
     class UProjectileMovementComponent* ProjectileMovement;
 
     UPROPERTY(EditAnywhere)
+    class USphereComponent* SphereCollider;
+
+    UPROPERTY(EditAnywhere)
     class UStaticMeshComponent* MeshComponent;
 
+protected:
     //Amount of damage the explosion from this projectile does.
     UPROPERTY(EditDefaultsOnly)
     float Damage;

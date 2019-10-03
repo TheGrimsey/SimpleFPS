@@ -6,6 +6,7 @@
 #include "UnrealNetwork.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "Components/SphereComponent.h"
 
 #include "Projectile.h"
 #include "SimpleFPSCharacter.h"
@@ -80,7 +81,12 @@ void UGunComponent::Fire()
     {
         ASimpleFPSCharacter* Owner = Cast<ASimpleFPSCharacter>(GetOwner());
 
-        AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(CurrentGunInformation.Projectile, Owner->GetPointOfView());
+        FTransform ProjectileTransform = Owner->GetFireTransform();
+
+        FVector ProjectileCollisionOffset = ProjectileTransform.GetRotation().RotateVector(FVector(CurrentGunInformation.Projectile.GetDefaultObject()->SphereCollider->GetScaledSphereRadius(), 0.f, 0.f));
+        ProjectileTransform.SetLocation(ProjectileTransform.GetLocation() + ProjectileCollisionOffset);
+
+        AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(CurrentGunInformation.Projectile, ProjectileTransform);
         if (Projectile)
         {
             Projectile->SetForwardVelocity(CurrentGunInformation.ProjectileSpeed);
