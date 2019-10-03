@@ -22,20 +22,35 @@ protected:
     // Called when the projectile collides with something.
     virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit);
 
+    // Called to blow up the projectile.
+    void Explode();
+
+public:
+    void SetForwardVelocity(float Velocity);
+
     /*
     *   Variables
     */
 protected:
-    //Amount of damage the explosion from this projectile does.
     UPROPERTY(EditAnywhere)
+    class UProjectileMovementComponent* ProjectileMovement;
+
+    UPROPERTY(EditAnywhere)
+    class UStaticMeshComponent* MeshComponent;
+
+    //Amount of damage the explosion from this projectile does.
+    UPROPERTY(EditDefaultsOnly)
     float Damage;
 
     //The radius of this projectile's explosion.
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditDefaultsOnly)
     float ExplosionRadius;
 
     //Delay in seconds from that the projectile hits something that it explodes.
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditDefaultsOnly)
     float ExploisionDelay;
 
+    //Timer for the explosion delay.
+    UPROPERTY(VisibleInstanceOnly)
+    FTimerHandle ExplosionTimer;
 };

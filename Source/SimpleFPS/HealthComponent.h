@@ -27,6 +27,11 @@ public:
     //Sets our Current & Max Health to the input value.
     void InitHealth(float InitalHealthValue);
 
+    //Apply Damage removing health.
+    void Damage(float Damage);
+
+    //Apply healing adding health.
+    void Heal(float Healing);
     /*
     *   Variables
     */

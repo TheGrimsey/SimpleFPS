@@ -74,6 +74,9 @@ void ASimpleFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASimpleFPSCharacter::OnFirePressed);
+    PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASimpleFPSCharacter::OnFireReleased);
+
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
     PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
@@ -83,6 +86,16 @@ void ASimpleFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
     PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
     PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
+}
+
+void ASimpleFPSCharacter::OnFirePressed()
+{
+    GunComponent->LocalOnFirePressed();
+}
+
+void ASimpleFPSCharacter::OnFireReleased()
+{
+    GunComponent->LocalOnFireReleased();
 }
 
 void ASimpleFPSCharacter::MoveForward(float Value)
@@ -118,5 +131,10 @@ void ASimpleFPSCharacter::MoveRight(float Value)
         AddMovementInput(Direction, Value);
 
     }
+}
+
+FTransform ASimpleFPSCharacter::GetPointOfView()
+{
+    return FTransform(GetControlRotation(), CameraComponent->GetComponentLocation());
 }
 

@@ -26,11 +26,20 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+    //Called when the Fire button is pressed.
+    void OnFirePressed();
+
+    //Called when the Fire button is released.
+    void OnFireReleased();
+
     //Handles Forward movement input.
     void MoveForward(float Value);
 
     //Handles Right movement input.
     void MoveRight(float Value);
+
+    //Returns the location of our view (camera) and the rotation of it (Controller rotation)
+    FTransform GetPointOfView();
 
     /*
     *   Variables
@@ -44,4 +53,5 @@ protected:
 
     UPROPERTY(EditAnywhere)
     class UCameraComponent* CameraComponent;
+
 };
