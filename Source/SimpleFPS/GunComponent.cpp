@@ -19,16 +19,6 @@ UGunComponent::UGunComponent()
     bReplicates = true;
 }
 
-
-// Called when the game starts
-void UGunComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
 void UGunComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);

@@ -12,16 +12,6 @@ UHealthComponent::UHealthComponent()
     bReplicates = true;
 }
 
-
-// Called when the game starts
-void UHealthComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);

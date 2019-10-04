@@ -53,13 +53,6 @@ ASimpleFPSCharacter::ASimpleFPSCharacter()
     CameraComponent->bUsePawnControlRotation = true;
 }
 
-// Called when the game starts or when spawned
-void ASimpleFPSCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
 void ASimpleFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);

@@ -16,8 +16,6 @@ public:
 	ASimpleFPSCharacter();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
     //Handles deciding what properties to replicated to who.
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
