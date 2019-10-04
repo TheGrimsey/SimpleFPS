@@ -44,14 +44,14 @@ public:
     /*
     *   Variables
     */
-protected:
-    UPROPERTY(EditAnywhere, Replicated)
+public:
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly)
     class UHealthComponent* HealthComponent;
 
-    UPROPERTY(EditAnywhere, Replicated)
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly)
     class UGunComponent* GunComponent;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     class UCameraComponent* CameraComponent;
 
 };

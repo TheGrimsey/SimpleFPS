@@ -16,7 +16,7 @@ UGunComponent::UGunComponent()
 {
     // Disable ticking for this Component.
 	PrimaryComponentTick.bCanEverTick = false;
-
+    bReplicates = true;
 }
 
 
@@ -35,9 +35,9 @@ void UGunComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
     DOREPLIFETIME(UGunComponent, CurrentGunInformation);
 
-    DOREPLIFETIME(UGunComponent, CurrentAmmunition);
+    DOREPLIFETIME_CONDITION(UGunComponent, CurrentAmmunition, COND_OwnerOnly);
     
-    DOREPLIFETIME(UGunComponent, TimeOfLastShot);
+    DOREPLIFETIME_CONDITION(UGunComponent, TimeOfLastShot, COND_OwnerOnly);
 }
 
 bool UGunComponent::CanFire()
@@ -51,6 +51,7 @@ void UGunComponent::LocalOnFirePressed()
     if (CanFire())
     {
         ServerOnFirePressed();
+        OnFire();
     }
 }
 
@@ -92,15 +93,23 @@ void UGunComponent::Fire()
             Projectile->SetForwardVelocity(CurrentGunInformation.ProjectileSpeed);
 
             CurrentAmmunition--;
+            TimeOfLastShot = GetWorld()->GetTimeSeconds();
+
+            MulticastOnFire();
         }
     }
 
-    MulticastOnFire();
 }
 
 void UGunComponent::MulticastOnFire_Implementation()
 {
-    OnFire();
+    /*
+    *   If we are the owning client then we don't want to execute onfire since we have already done it when we sent the fire command.
+    */
+    if (GetOwnerRole() != ENetRole::ROLE_AutonomousProxy)
+    {
+        OnFire();
+    }
 }
 
 void UGunComponent::OnFire()

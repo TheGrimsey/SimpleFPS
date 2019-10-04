@@ -19,20 +19,25 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+    //Handles deciding what properties to replicated to who.
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
     // Called when the projectile collides with something.
-    virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit);
+    UFUNCTION()
+    void OnHit(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
 
     // Called to blow up the projectile.
     void Explode();
 
 public:
+    UFUNCTION(NetMulticast, Reliable)
     void SetForwardVelocity(float Velocity);
 
     /*
     *   Variables
     */
 public:
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, Replicated)
     class UProjectileMovementComponent* ProjectileMovement;
 
     UPROPERTY(EditAnywhere)
@@ -57,4 +62,8 @@ protected:
     //Timer for the explosion delay.
     UPROPERTY(VisibleInstanceOnly)
     FTimerHandle ExplosionTimer;
+
+    //True if we have hit something and are ramping up to explode.
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+    bool bIsFuseLit;
 };

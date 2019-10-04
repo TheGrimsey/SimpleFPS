@@ -9,7 +9,7 @@ UHealthComponent::UHealthComponent()
 {
     // Disable ticking for this Component.
 	PrimaryComponentTick.bCanEverTick = false;
-
+    bReplicates = true;
 }
 
 
@@ -41,12 +41,12 @@ void UHealthComponent::InitHealth(float InitalHealthValue)
 
 void UHealthComponent::Damage(float Damage)
 {
-    //Remove the absolute damage value. (We don't want to deal negative damage)
-    CurrentHealth -= FMath::Abs(Damage);
+    //Remove the absolute damage value and also clamp our CurrentHealth between 0 and max. (We don't want to deal negative damage)
+    CurrentHealth = FMath::Clamp(CurrentHealth - FMath::Abs(Damage), 0.f, MaxHealth);
 }
 
 void UHealthComponent::Heal(float Healing)
 {
-    //Add the absolute healing value. (We don't want to do negative healing)
-    CurrentHealth += FMath::Abs(Healing);
+    //Add the absolute healing value and also clamp our CurrentHealth between 0 and max. (We don't want to do negative healing)
+    CurrentHealth = FMath::Clamp(CurrentHealth + FMath::Abs(Healing), 0.f, MaxHealth);
 }

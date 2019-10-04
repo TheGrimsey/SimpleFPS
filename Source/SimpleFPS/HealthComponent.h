@@ -37,10 +37,10 @@ public:
     */
 protected:
     //Our current health.
-    UPROPERTY(EditAnywhere, Replicated)
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly)
     float CurrentHealth;
 
     //The max health we can have.
-    UPROPERTY(EditAnywhere, Replicated)
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly)
     float MaxHealth;
 };
