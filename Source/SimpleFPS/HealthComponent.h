@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
+DECLARE_DELEGATE_OneParam(FOnHealthChangedDelegate, float)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEFPS_API UHealthComponent : public UActorComponent
@@ -29,9 +30,14 @@ public:
 
     //Apply healing adding health.
     void Heal(float Healing);
+
     /*
     *   Variables
     */
+public:
+    //UPROPERTY(BlueprintAssignable)
+    //FOnHealthChangedDelegate OnHealthChanged;
+
 protected:
     //Our current health.
     UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly)

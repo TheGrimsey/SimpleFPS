@@ -39,13 +39,6 @@ AProjectile::AProjectile()
     SetRootComponent(SphereCollider);
 }
 
-// Called when the game starts or when spawned
-void AProjectile::BeginPlay()
-{
-    Super::BeginPlay();
-
-}
-
 void AProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);

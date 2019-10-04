@@ -68,6 +68,7 @@ void UGunComponent::ServerOnFireReleased_Implementation()
 
 void UGunComponent::Fire()
 {
+    //Check so we fullfill the requirements to fire.
     if (CanFire())
     {
         ASimpleFPSCharacter* Owner = Cast<ASimpleFPSCharacter>(GetOwner());
@@ -77,14 +78,20 @@ void UGunComponent::Fire()
         FVector ProjectileCollisionOffset = ProjectileTransform.GetRotation().RotateVector(FVector(CurrentGunInformation.Projectile.GetDefaultObject()->SphereCollider->GetScaledSphereRadius(), 0.f, 0.f));
         ProjectileTransform.SetLocation(ProjectileTransform.GetLocation() + ProjectileCollisionOffset);
 
+        //Spawn projectile.
         AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(CurrentGunInformation.Projectile, ProjectileTransform);
         if (Projectile)
         {
+            //Initialize values in projectile.
             Projectile->SetForwardVelocity(CurrentGunInformation.ProjectileSpeed);
+            Projectile->SourceCharacter = Owner;
 
+            //Subtract one piece of ammo from us.
             CurrentAmmunition--;
+            //Set the time we last fired a shot to current time.
             TimeOfLastShot = GetWorld()->GetTimeSeconds();
 
+            //Notify everyone that we have fired.
             MulticastOnFire();
         }
     }

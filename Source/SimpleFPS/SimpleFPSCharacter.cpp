@@ -137,3 +137,11 @@ FTransform ASimpleFPSCharacter::GetFireTransform()
     return FTransform(Rotation, Location);
 }
 
+void ASimpleFPSCharacter::OnHealthChanged(float NewHealth)
+{
+    if (NewHealth <= 0.f)
+    {
+
+    }
+}
+

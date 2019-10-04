@@ -12,6 +12,8 @@
 UCLASS()
 class SIMPLEFPS_API ASimpleFPSGameModeBase : public AGameModeBase
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
+public:
+    void OnPlayerDeath(class ASimpleFPSPlayerController* Player);
 };

@@ -39,6 +39,8 @@ public:
     //Returns the transform from which our bullets should come from.
     FTransform GetFireTransform();
 
+    void OnHealthChanged(float NewHealth);
+
     /*
     *   Variables
     */

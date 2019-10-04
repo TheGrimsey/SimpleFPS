@@ -56,6 +56,12 @@ protected:
     UPROPERTY(EditDefaultsOnly)
     float ExploisionDelay;
 
+public:
+    //The character that fired this projectile.
+    UPROPERTY(VisibleInstanceOnly)
+    class ASimpleFPSCharacter* SourceCharacter;
+
+protected:
     //Timer for the explosion delay.
     UPROPERTY(VisibleInstanceOnly)
     FTimerHandle ExplosionTimer;
