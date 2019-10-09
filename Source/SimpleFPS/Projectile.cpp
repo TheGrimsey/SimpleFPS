@@ -102,7 +102,6 @@ void AProjectile::Explode()
     }
 
     Destroy();
-    UE_LOG(LogTemp, Log, TEXT("%s exploded!"), *GetName());
 }
 
 void AProjectile::SetForwardVelocity_Implementation(float Velocity)

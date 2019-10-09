@@ -19,7 +19,7 @@ struct FGunInformation
     class USkeletalMesh* Model;
 
     UPROPERTY(EditAnywhere)
-    uint32 MaxAmmunition;
+    int32 MaxAmmunition;
 
     UPROPERTY(EditAnywhere)
     bool bAutomaticFire;
@@ -75,6 +75,18 @@ public:
     //Handles the visuals.
     void OnFire();
 
+    UFUNCTION(BlueprintPure)
+    int32 GetCurrentAmmunition()
+    {
+        return CurrentAmmunition;
+    }
+
+    UFUNCTION(BlueprintPure)
+    int32 GetMaxAmmunition()
+    {
+        return CurrentGunInformation.MaxAmmunition;
+    }
+
     /*
     *   Variables
     */
@@ -83,7 +95,7 @@ protected:
     FGunInformation CurrentGunInformation;
 
     UPROPERTY(EditAnywhere, Replicated)
-    uint32 CurrentAmmunition;
+    int32 CurrentAmmunition;
 
     UPROPERTY(VisibleAnywhere, Replicated)
     float TimeOfLastShot;
