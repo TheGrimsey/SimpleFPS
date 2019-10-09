@@ -3,6 +3,8 @@
 
 #include "SimpleFPSCharacter.h"
 
+#include "SimpleFPSPlayerController.h"
+
 #include "HealthComponent.h"
 #include "GunComponent.h"
 
@@ -147,7 +149,17 @@ void ASimpleFPSCharacter::OnHealthChanged(float NewHealth, float OldHealth)
 {
     if (NewHealth <= 0.f)
     {
-        //Do the death.
+        OnDeath();
+    }
+}
+
+void ASimpleFPSCharacter::OnDeath()
+{
+    //Notify controller of our death.
+    ASimpleFPSPlayerController* Controller = Cast<ASimpleFPSPlayerController>(GetController());
+    if (Controller)
+    {
+        Controller->OnPawnDeath();
     }
 }
 

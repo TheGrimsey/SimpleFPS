@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "SimpleFPSPlayerController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterDeath);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterRespawn);
+
 /**
  * 
  */
@@ -14,15 +17,28 @@ class SIMPLEFPS_API ASimpleFPSPlayerController : public APlayerController
 {
     GENERATED_BODY()
 
-    void OnCharacterDeath();
+public:
+    void OnPawnDeath();
+
+protected:
+    virtual void OnPossess(APawn* pawn) override;
 
     /*
     *   Variables
     */
+public:
+    UPROPERTY(BlueprintAssignable)
+    FOnCharacterDeath OnCharacterDeath;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnCharacterRespawn OnCharacterRespawn;
+
 protected:
     //Amount of times we have died.
-    uint32 Deaths;
+    UPROPERTY(VisibleAnywhere)
+    uint32 Deaths = 0;
 
     //Amount of kills we have. Not specifically enemies.
-    uint32 Kills;
+    UPROPERTY(VisibleAnywhere)
+    uint32 Kills = 0;
 };
