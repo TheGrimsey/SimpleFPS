@@ -41,6 +41,12 @@ ASimpleFPSCharacter::ASimpleFPSCharacter()
     HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
     //Init Health to 100.
     HealthComponent->InitHealth(100.f);
+    //Bind the OnHealthChanged event to our OnHealthChanged function.
+    {
+        FScriptDelegate OnHealthChangedDelegate;
+        OnHealthChangedDelegate.BindUFunction(this, FName(TEXT("OnHealthChanged")));
+        HealthComponent->OnHealthChanged.Add(OnHealthChangedDelegate);
+    }
 
     GunComponent = CreateDefaultSubobject<UGunComponent>(TEXT("Gun Component"));
 
@@ -137,11 +143,11 @@ FTransform ASimpleFPSCharacter::GetFireTransform()
     return FTransform(Rotation, Location);
 }
 
-void ASimpleFPSCharacter::OnHealthChanged(float NewHealth)
+void ASimpleFPSCharacter::OnHealthChanged(float NewHealth, float OldHealth)
 {
     if (NewHealth <= 0.f)
     {
-
+        //Do the death.
     }
 }
 

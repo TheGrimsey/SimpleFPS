@@ -52,6 +52,10 @@ protected:
     UPROPERTY(EditDefaultsOnly)
     float ExplosionRadius;
 
+    //The force applied to actors when the projectile explodes.
+    UPROPERTY(EditDefaultsOnly)
+    float ExplosionForce;
+
     //Delay in seconds from that the projectile hits something that it explodes.
     UPROPERTY(EditDefaultsOnly)
     float ExploisionDelay;

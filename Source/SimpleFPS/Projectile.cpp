@@ -9,6 +9,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "HealthComponent.h"
 
 #include "UnrealNetwork.h"
@@ -83,13 +84,19 @@ void AProjectile::Explode()
             //Check so we haven't hit this actor already.
             if (ActorsHit.Contains(Hit.Actor)) continue;
 
-            //TODO: Check so we don't hit something behind a wall.
+            //Deal damage.
             UHealthComponent* TargetHealthComponent = Cast<UHealthComponent>(Hit.Actor->GetComponentByClass(UHealthComponent::StaticClass()));
             if (TargetHealthComponent)
             {
                 TargetHealthComponent->Damage(Damage);
             }
 
+            //Apply explosion force.
+            UCharacterMovementComponent* CharacterMoveComp = Cast<UCharacterMovementComponent>(Hit.Actor->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+            if (CharacterMoveComp)
+            {
+                CharacterMoveComp->AddRadialImpulse(GetActorLocation(), ExplosionRadius, ExplosionForce, ERadialImpulseFalloff::RIF_Linear, true);
+            }
             ActorsHit.Add(Hit.Actor.Get());
         }
     }

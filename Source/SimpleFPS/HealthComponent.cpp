@@ -31,12 +31,12 @@ void UHealthComponent::InitHealth(float InitalHealthValue)
 
 void UHealthComponent::Damage(float Damage)
 {
-    //Remove the absolute damage value and also clamp our CurrentHealth between 0 and max. (We don't want to deal negative damage)
-    CurrentHealth = FMath::Clamp(CurrentHealth - FMath::Abs(Damage), 0.f, MaxHealth);
+    //Remove the absolute damage
+    ModHealth(-FMath::Abs(Damage));
 }
 
 void UHealthComponent::Heal(float Healing)
 {
-    //Add the absolute healing value and also clamp our CurrentHealth between 0 and max. (We don't want to do negative healing)
-    CurrentHealth = FMath::Clamp(CurrentHealth + FMath::Abs(Healing), 0.f, MaxHealth);
+    //Add the absolute healing value.
+    ModHealth(FMath::Abs(Healing));
 }

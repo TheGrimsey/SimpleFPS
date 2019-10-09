@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
-DECLARE_DELEGATE_OneParam(FOnHealthChangedDelegate, float)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, OldHealth);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEFPS_API UHealthComponent : public UActorComponent
@@ -31,12 +31,20 @@ public:
     //Apply healing adding health.
     void Heal(float Healing);
 
+private:
+    FORCEINLINE void ModHealth(float Modifier)
+    {
+        float OldHealth = CurrentHealth;
+        CurrentHealth = FMath::Clamp(CurrentHealth + Modifier, 0.f, MaxHealth);
+
+        OnHealthChanged.Broadcast(CurrentHealth, OldHealth);
+    }
     /*
     *   Variables
     */
 public:
-    //UPROPERTY(BlueprintAssignable)
-    //FOnHealthChangedDelegate OnHealthChanged;
+    UPROPERTY(BlueprintAssignable)
+    FOnHealthChanged OnHealthChanged;
 
 protected:
     //Our current health.
