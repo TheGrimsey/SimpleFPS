@@ -17,11 +17,25 @@ class SIMPLEFPS_API ASimpleFPSPlayerController : public APlayerController
 {
     GENERATED_BODY()
 
+    /*
+    *   Methods
+    */
 public:
+    //Called when our character has died.
+    UFUNCTION()
     void OnPawnDeath();
 
+    //Called when our character has respawned.
+    UFUNCTION()
+    void OnPawnRespawn();
+
+    //RPC to call OnPlayerRespawn on client.
+    UFUNCTION(Client, Reliable)
+    void ClientOnPawnRespawn();
+
 protected:
-    virtual void OnPossess(APawn* pawn) override;
+    UFUNCTION()
+    void Respawn();
 
     /*
     *   Variables
@@ -34,6 +48,9 @@ public:
     FOnCharacterRespawn OnCharacterRespawn;
 
 protected:
+    UPROPERTY()
+    struct FTimerHandle RespawnTimer;
+
     //Amount of times we have died.
     UPROPERTY(VisibleAnywhere)
     uint32 Deaths = 0;

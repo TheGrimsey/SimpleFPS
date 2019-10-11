@@ -15,5 +15,17 @@ class SIMPLEFPS_API ASimpleFPSGameModeBase : public AGameModeBase
     GENERATED_BODY()
 
 public:
-    void OnPlayerDeath(class ASimpleFPSPlayerController* Player);
+    void OnPlayerDeath(class ASimpleFPSPlayerController* Player, APawn* Pawn);
+
+    /*
+    *   Variables
+    */
+public:
+    //How long we leave the corpse of a player before deleting it.
+    UPROPERTY(EditAnywhere)
+    float CorpseLifeTime = 10.f;
+
+    //How long the player stays dead before respawning. TODO
+    UPROPERTY(EditAnywhere)
+    float RespawnTime = 5.f;
 };

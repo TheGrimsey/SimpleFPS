@@ -113,3 +113,8 @@ void UGunComponent::OnFire()
 {
     UE_LOG(LogTemp, Log, TEXT("Fired!"))
 }
+
+void UGunComponent::OnRep_CurrentGunInformation()
+{
+    OnWeaponInfoChanged.Broadcast(CurrentGunInformation);
+}

@@ -16,7 +16,7 @@ struct FGunInformation
     }
 
     UPROPERTY(EditAnywhere)
-    class USkeletalMesh* Model;
+    class USkeletalMesh* Mesh;
 
     UPROPERTY(EditAnywhere)
     int32 MaxAmmunition;
@@ -33,6 +33,8 @@ struct FGunInformation
     UPROPERTY(EditAnywhere)
     float ProjectileSpeed;
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponInfoChanged, FGunInformation, NewWeapon);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEFPS_API UGunComponent : public UActorComponent
@@ -87,11 +89,23 @@ public:
         return CurrentGunInformation.MaxAmmunition;
     }
 
+    UFUNCTION()
+    FGunInformation GetCurrentGunInformation()
+    {
+        return CurrentGunInformation;
+    }
+
+    UFUNCTION()
+    void OnRep_CurrentGunInformation();
+
     /*
     *   Variables
     */
+public:
+    FOnWeaponInfoChanged OnWeaponInfoChanged;
+
 protected:
-    UPROPERTY(EditAnywhere, Replicated)
+    UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_CurrentGunInformation)
     FGunInformation CurrentGunInformation;
 
     UPROPERTY(EditAnywhere, Replicated)

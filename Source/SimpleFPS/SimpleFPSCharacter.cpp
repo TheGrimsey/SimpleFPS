@@ -11,6 +11,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 
@@ -20,6 +21,7 @@
 ASimpleFPSCharacter::ASimpleFPSCharacter()
 {
  	// We don't want this actor to tick.
+    PrimaryActorTick.bStartWithTickEnabled = false;
 	PrimaryActorTick.bCanEverTick = false;
 
     // Rotate Yaw (left&right) based on controller rotation.
@@ -43,6 +45,7 @@ ASimpleFPSCharacter::ASimpleFPSCharacter()
     HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
     //Init Health to 100.
     HealthComponent->InitHealth(100.f);
+
     //Bind the OnHealthChanged event to our OnHealthChanged function.
     {
         FScriptDelegate OnHealthChangedDelegate;
@@ -51,6 +54,16 @@ ASimpleFPSCharacter::ASimpleFPSCharacter()
     }
 
     GunComponent = CreateDefaultSubobject<UGunComponent>(TEXT("Gun Component"));
+    {
+        FScriptDelegate OnWeaponChangedDelegate;
+        OnWeaponChangedDelegate.BindUFunction(this, FName(TEXT("OnWeaponChanged")));
+        GunComponent->OnWeaponInfoChanged.Add(OnWeaponChangedDelegate);
+    }
+
+    GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun Mesh"));
+    GunMesh->SetupAttachment(GetMesh());
+    GunMesh->SkeletalMesh = GunComponent->GetCurrentGunInformation().Mesh;
+    
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
     //Attach Camera to capsule component.
@@ -156,10 +169,18 @@ void ASimpleFPSCharacter::OnHealthChanged(float NewHealth, float OldHealth)
 void ASimpleFPSCharacter::OnDeath()
 {
     //Notify controller of our death.
-    ASimpleFPSPlayerController* Controller = Cast<ASimpleFPSPlayerController>(GetController());
-    if (Controller)
+    ASimpleFPSPlayerController* FPSController = Cast<ASimpleFPSPlayerController>(GetController());
+    if (FPSController)
     {
-        Controller->OnPawnDeath();
+        FPSController->OnPawnDeath();
     }
+
+    //Clear all the listeners from our health.
+    HealthComponent->OnHealthChanged.Clear();
+}
+
+void ASimpleFPSCharacter::OnWeaponChanged(FGunInformation NewWeapon)
+{
+    GunMesh->SkeletalMesh = NewWeapon.Mesh;
 }
 

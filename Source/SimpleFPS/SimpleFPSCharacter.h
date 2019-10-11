@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+#include "GunComponent.h"
+
 #include "SimpleFPSCharacter.generated.h"
 
 UCLASS()
@@ -43,6 +46,10 @@ public:
     void OnHealthChanged(float NewHealth, float OldHealth);
 
     void OnDeath();
+
+    UFUNCTION()
+    void OnWeaponChanged(struct FGunInformation NewWeapon);
+
     /*
     *   Variables
     */
@@ -54,6 +61,8 @@ public:
     class UGunComponent* GunComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    class USkeletalMeshComponent* GunMesh;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     class UCameraComponent* CameraComponent;
-
 };

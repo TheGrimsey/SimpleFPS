@@ -5,31 +5,60 @@
 
 #include "Engine/World.h"
 #include "SimpleFPSGameModeBase.h"
-#include "SimpleFPSCharacter.h"
+#include "TimerManager.h"
 
 void ASimpleFPSPlayerController::OnPawnDeath()
 {
-    //Leave body for 30 seconds before removing it.
-    GetPawn()->SetLifeSpan(30.f);
+    //Increase our death counter.
+    ++Deaths;
+
+    //Broadcast that our character has died.
+    OnCharacterDeath.Broadcast();
+
+    if (!HasAuthority()) return;
+
+    //Save our dead pawn.
+    APawn* OldPawn = GetPawn();
 
     UnPossess();
-    
+
     ASimpleFPSGameModeBase* FPSGamemode = GetWorld()->GetAuthGameMode<ASimpleFPSGameModeBase>();
     if (FPSGamemode)
     {
-        FPSGamemode->OnPlayerDeath(this);
+        //Notify the gamemode that our character died.
+        FPSGamemode->OnPlayerDeath(this, OldPawn);
+
+        if (FPSGamemode->RespawnTime > 0.f)
+        {
+            GetWorldTimerManager().SetTimer(RespawnTimer, FTimerDelegate::CreateUObject(this, &ASimpleFPSPlayerController::Respawn), FPSGamemode->RespawnTime, false);
+        }
+        else
+        {
+            Respawn();
+        }
     }
-
-    ++Deaths;
-
-    //Schedule respawn.
 }
 
-void ASimpleFPSPlayerController::OnPossess(APawn* pawn)
+void ASimpleFPSPlayerController::OnPawnRespawn()
 {
-    //Register OnDeathdelegate.
-    if (ASimpleFPSCharacter* SimpleFPSChar = Cast<ASimpleFPSCharacter>(pawn))
-    {
+    OnCharacterRespawn.Broadcast();
+}
 
+void ASimpleFPSPlayerController::ClientOnPawnRespawn_Implementation()
+{
+    OnPawnRespawn();
+}
+
+void ASimpleFPSPlayerController::Respawn()
+{
+    GetWorld()->GetAuthGameMode<AGameModeBase>()->RestartPlayer(this);
+
+    //Make sure we actually respawned by checking if we controll a pawn.
+    if (GetPawn())
+    {
+        OnPawnRespawn();
+
+        //RPC to tell client we respawned.
+        ClientOnPawnRespawn();
     }
 }
