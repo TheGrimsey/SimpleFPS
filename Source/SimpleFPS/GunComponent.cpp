@@ -26,8 +26,6 @@ void UGunComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
     DOREPLIFETIME(UGunComponent, CurrentGunInformation);
 
     DOREPLIFETIME_CONDITION(UGunComponent, CurrentAmmunition, COND_OwnerOnly);
-    
-    DOREPLIFETIME_CONDITION(UGunComponent, TimeOfLastShot, COND_OwnerOnly);
 }
 
 bool UGunComponent::CanFire()
@@ -52,6 +50,7 @@ void UGunComponent::LocalOnFireReleased()
 
 void UGunComponent::ServerOnFirePressed_Implementation()
 {
+	UE_LOG(LogTemp, Log, TEXT("Recieved FirePressed from %s."), *GetOwner()->GetName());
     Fire();
 
     if (CurrentGunInformation.bAutomaticFire)
@@ -68,9 +67,12 @@ void UGunComponent::ServerOnFireReleased_Implementation()
 
 void UGunComponent::Fire()
 {
+	UE_LOG(LogTemp, Log, TEXT("%s has %d ammo"), *GetOwner()->GetName(), CurrentAmmunition);
     //Check so we fullfill the requirements to fire.
     if (CanFire())
     {
+		UE_LOG(LogTemp, Log, TEXT("%s passed fire requirements."), *GetOwner()->GetName());
+
         ASimpleFPSCharacter* Owner = Cast<ASimpleFPSCharacter>(GetOwner());
 
         FTransform ProjectileTransform = Owner->GetFireTransform();
@@ -103,7 +105,7 @@ void UGunComponent::MulticastOnFire_Implementation()
     /*
     *   If we are the owning client then we don't want to execute onfire since we have already done it when we sent the fire command.
     */
-    if (GetOwnerRole() != ENetRole::ROLE_AutonomousProxy)
+    if (GetOwnerRole() != ENetRole::ROLE_AutonomousProxy && GetOwner()->GetRemoteRole() != ENetRole::ROLE_SimulatedProxy)
     {
         OnFire();
     }
@@ -111,7 +113,11 @@ void UGunComponent::MulticastOnFire_Implementation()
 
 void UGunComponent::OnFire()
 {
-    UE_LOG(LogTemp, Log, TEXT("Fired!"))
+	FString NameOfOwner = GetOwner()->GetName();
+	FString NetworkRole = GetOwnerRole() >= ENetRole::ROLE_AutonomousProxy ? TEXT("locally") : TEXT("Remotely");
+	UE_LOG(LogTemp, Log, TEXT("%s fired a shot %s"), *NameOfOwner, *NetworkRole);
+
+	OnWeaponFired.Broadcast(CurrentGunInformation);
 }
 
 void UGunComponent::OnRep_CurrentGunInformation()

@@ -54,14 +54,18 @@ ASimpleFPSCharacter::ASimpleFPSCharacter()
     }
 
     GunComponent = CreateDefaultSubobject<UGunComponent>(TEXT("Gun Component"));
+    //Bind OnWeaponChanged event to our OnWeaponChanged function.
     {
         FScriptDelegate OnWeaponChangedDelegate;
         OnWeaponChangedDelegate.BindUFunction(this, FName(TEXT("OnWeaponChanged")));
         GunComponent->OnWeaponInfoChanged.Add(OnWeaponChangedDelegate);
     }
 
+    /*
+    *   Set up GunMesh;
+    */
     GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun Mesh"));
-    GunMesh->SetupAttachment(GetMesh());
+    GunMesh->SetupAttachment(GetMesh(), TEXT("RightHand"));
     GunMesh->SkeletalMesh = GunComponent->GetCurrentGunInformation().Mesh;
     
 
@@ -179,7 +183,7 @@ void ASimpleFPSCharacter::OnDeath()
     HealthComponent->OnHealthChanged.Clear();
 }
 
-void ASimpleFPSCharacter::OnWeaponChanged(FGunInformation NewWeapon)
+void ASimpleFPSCharacter::OnWeaponChanged(const FGunInformation& NewWeapon)
 {
     GunMesh->SkeletalMesh = NewWeapon.Mesh;
 }

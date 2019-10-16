@@ -48,21 +48,21 @@ public:
     void OnDeath();
 
     UFUNCTION()
-    void OnWeaponChanged(struct FGunInformation NewWeapon);
+    void OnWeaponChanged(const struct FGunInformation& NewWeapon);
 
     /*
     *   Variables
     */
 public:
-    UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly)
+    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Replicated)
     class UHealthComponent* HealthComponent;
 
-    UPROPERTY(EditAnywhere, Replicated, BlueprintReadOnly)
+    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Replicated)
     class UGunComponent* GunComponent;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class USkeletalMeshComponent* GunMesh;
     
-    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UCameraComponent* CameraComponent;
 };

@@ -6,35 +6,41 @@
 #include "Components/ActorComponent.h"
 #include "GunComponent.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FGunInformation
 {
     GENERATED_BODY()
 
-    FGunInformation() {
-
+    FGunInformation(USkeletalMesh* InMesh = nullptr, int32 InMaxAmmunition = 0, bool InAutomaticFire = false, float InTimeBetweenShots = 0.f, TSubclassOf<class AProjectile> InProjectile = nullptr, float InProjectileSpeed = 1000.f) {
+		Mesh = InMesh;
+		MaxAmmunition = InMaxAmmunition;
+		bAutomaticFire = InAutomaticFire;
+		TimeBetweenShots = InTimeBetweenShots;
+		Projectile = InProjectile;
+		ProjectileSpeed = InProjectileSpeed;
     }
 
     UPROPERTY(EditAnywhere)
-    class USkeletalMesh* Mesh;
+    class USkeletalMesh* Mesh = nullptr;
 
     UPROPERTY(EditAnywhere)
-    int32 MaxAmmunition;
+    int32 MaxAmmunition = 0;
 
     UPROPERTY(EditAnywhere)
-    bool bAutomaticFire;
+    bool bAutomaticFire = false;
 
     UPROPERTY(EditAnywhere)
-    float TimeBetweenShots;
+    float TimeBetweenShots = 0.f;
 
     UPROPERTY(EditAnywhere)
-    TSubclassOf<class AProjectile> Projectile;
+    TSubclassOf<class AProjectile> Projectile = nullptr;
 
     UPROPERTY(EditAnywhere)
-    float ProjectileSpeed;
+    float ProjectileSpeed = 1000.f;
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponInfoChanged, FGunInformation, NewWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponInfoChanged, const FGunInformation&, NewWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponFired, const FGunInformation&, WeaponUsed);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEFPS_API UGunComponent : public UActorComponent
@@ -102,17 +108,21 @@ public:
     *   Variables
     */
 public:
+	UPROPERTY(BlueprintAssignable)
     FOnWeaponInfoChanged OnWeaponInfoChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponFired OnWeaponFired;
 
 protected:
     UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_CurrentGunInformation)
     FGunInformation CurrentGunInformation;
 
     UPROPERTY(EditAnywhere, Replicated)
-    int32 CurrentAmmunition;
+    int32 CurrentAmmunition = 0;
 
-    UPROPERTY(VisibleAnywhere, Replicated)
-    float TimeOfLastShot;
+    UPROPERTY(VisibleAnywhere)
+    float TimeOfLastShot = 0.f;
 
     UPROPERTY(VisibleAnywhere)
     FTimerHandle AutomaticFireTimer;
