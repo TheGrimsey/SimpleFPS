@@ -6,6 +6,15 @@
 #include "Engine/World.h"
 #include "SimpleFPSGameModeBase.h"
 #include "TimerManager.h"
+#include "UnrealNetwork.h"
+
+void ASimpleFPSPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASimpleFPSPlayerController, Deaths);
+	DOREPLIFETIME(ASimpleFPSPlayerController, Kills);
+}
 
 void ASimpleFPSPlayerController::OnPawnDeath()
 {
@@ -47,6 +56,11 @@ void ASimpleFPSPlayerController::OnPawnRespawn()
 void ASimpleFPSPlayerController::ClientOnPawnRespawn_Implementation()
 {
     OnPawnRespawn();
+}
+
+void ASimpleFPSPlayerController::OnPawnGotKill()
+{
+	++Kills;
 }
 
 void ASimpleFPSPlayerController::Respawn()

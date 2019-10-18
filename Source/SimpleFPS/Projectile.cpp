@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "HealthComponent.h"
 
+#include "SimpleFPSPlayerController.h"
 #include "UnrealNetwork.h"
 
 // Sets default values
@@ -88,7 +89,11 @@ void AProjectile::Explode()
             UHealthComponent* TargetHealthComponent = Cast<UHealthComponent>(Hit.Actor->GetComponentByClass(UHealthComponent::StaticClass()));
             if (TargetHealthComponent)
             {
-                TargetHealthComponent->Damage(Damage);
+				//Deal damage to target and if they die because of it we notify our sourcecharacter.
+				if (TargetHealthComponent->Damage(Damage))
+				{
+					SourceCharacter->OnPawnGotKill();
+				}
             }
 
             //Apply explosion force.

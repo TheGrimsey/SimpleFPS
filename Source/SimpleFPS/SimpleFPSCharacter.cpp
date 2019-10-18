@@ -181,6 +181,8 @@ void ASimpleFPSCharacter::OnDeath()
 
     //Clear all the listeners from our health.
     HealthComponent->OnHealthChanged.Clear();
+
+	BP_OnDeath();
 }
 
 void ASimpleFPSCharacter::OnWeaponChanged(const FGunInformation& NewWeapon)

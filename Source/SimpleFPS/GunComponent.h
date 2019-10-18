@@ -56,6 +56,9 @@ protected:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
+	UFUNCTION(BlueprintCallable)
+	void AddAmmo(int32 Amount);
+
     //Returns true if we pass all requirements to fire.
     bool CanFire();
 

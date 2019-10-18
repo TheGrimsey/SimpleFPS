@@ -29,10 +29,12 @@ void UHealthComponent::InitHealth(float InitalHealthValue)
     MaxHealth = InitalHealthValue;
 }
 
-void UHealthComponent::Damage(float Damage)
+bool UHealthComponent::Damage(float Damage)
 {
     //Remove the absolute damage
     ModHealth(-FMath::Abs(Damage));
+
+	return !IsAlive();
 }
 
 void UHealthComponent::Heal(float Healing)

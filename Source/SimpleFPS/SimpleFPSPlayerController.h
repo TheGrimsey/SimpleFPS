@@ -21,6 +21,9 @@ class SIMPLEFPS_API ASimpleFPSPlayerController : public APlayerController
     *   Methods
     */
 public:
+	//Handles deciding what properties to replicated to who.
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
     //Called when our character has died.
     UFUNCTION()
     void OnPawnDeath();
@@ -32,6 +35,9 @@ public:
     //RPC to call OnPlayerRespawn on client.
     UFUNCTION(Client, Reliable)
     void ClientOnPawnRespawn();
+
+	UFUNCTION()
+	void OnPawnGotKill();
 
 protected:
     UFUNCTION()
@@ -52,10 +58,10 @@ protected:
     struct FTimerHandle RespawnTimer;
 
     //Amount of times we have died.
-    UPROPERTY(VisibleAnywhere)
-    uint32 Deaths = 0;
+    UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly)
+    int32 Deaths = 0;
 
     //Amount of kills we have. Not specifically enemies.
-    UPROPERTY(VisibleAnywhere)
-    uint32 Kills = 0;
+    UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly)
+    int32 Kills = 0;
 };

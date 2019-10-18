@@ -42,10 +42,14 @@ public:
     //Returns the transform from which our bullets should come from.
     FTransform GetFireTransform();
 
+protected:
     UFUNCTION()
     void OnHealthChanged(float NewHealth, float OldHealth);
 
     void OnDeath();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnDeath();
 
     UFUNCTION()
     void OnWeaponChanged(const struct FGunInformation& NewWeapon);

@@ -25,11 +25,17 @@ public:
     //Sets our Current & Max Health to the input value.
     void InitHealth(float InitalHealthValue);
 
-    //Apply Damage removing health.
-    void Damage(float Damage);
+    //Apply Damage removing health. Returns true if the character dies because of the damage.
+    bool Damage(float Damage);
 
     //Apply healing adding health.
     void Heal(float Healing);
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsAlive()
+	{
+		return CurrentHealth > 0.f;
+	}
 
 private:
     FORCEINLINE void ModHealth(float Modifier)
