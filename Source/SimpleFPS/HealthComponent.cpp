@@ -31,14 +31,23 @@ void UHealthComponent::InitHealth(float InitalHealthValue)
 
 bool UHealthComponent::Damage(float Damage)
 {
-    //Remove the absolute damage
-    ModHealth(-FMath::Abs(Damage));
+	if (IsAlive())
+	{
+		//Remove the absolute damage
+		ModHealth(-FMath::Abs(Damage));
 
-	return !IsAlive();
+		return !IsAlive();
+	}
+
+	//We were already dead so return false.
+	return false;
 }
 
 void UHealthComponent::Heal(float Healing)
 {
-    //Add the absolute healing value.
-    ModHealth(FMath::Abs(Healing));
+	if (IsAlive())
+	{
+		//Add the absolute healing value.
+		ModHealth(FMath::Abs(Healing));
+	}
 }
