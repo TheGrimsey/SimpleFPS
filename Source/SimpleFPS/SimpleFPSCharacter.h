@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
-#include "GunComponent.h"
-
 #include "SimpleFPSCharacter.generated.h"
 
 UCLASS()
@@ -17,6 +15,8 @@ class SIMPLEFPS_API ASimpleFPSCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ASimpleFPSCharacter();
+
+	virtual void BeginPlay() override;
 
 protected:
 
@@ -52,7 +52,7 @@ protected:
 	void BP_OnDeath();
 
     UFUNCTION()
-    void OnWeaponChanged(const struct FGunInformation& NewWeapon);
+    void OnWeaponChanged(const class UWeaponAsset* NewWeapon);
 
     /*
     *   Variables

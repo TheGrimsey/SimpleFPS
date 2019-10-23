@@ -7,6 +7,7 @@
 
 #include "HealthComponent.h"
 #include "GunComponent.h"
+#include "WeaponAsset.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
@@ -66,8 +67,6 @@ ASimpleFPSCharacter::ASimpleFPSCharacter()
     */
     GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun Mesh"));
     GunMesh->SetupAttachment(GetMesh(), TEXT("RightHand"));
-    GunMesh->SkeletalMesh = GunComponent->GetCurrentGunInformation().Mesh;
-    
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
     //Attach Camera to capsule component.
@@ -76,6 +75,19 @@ ASimpleFPSCharacter::ASimpleFPSCharacter()
     CameraComponent->RelativeLocation = FVector(0.f, 0.f, 80.f);
     //Rotate Camera pitch based on controller rotation.
     CameraComponent->bUsePawnControlRotation = true;
+}
+
+void ASimpleFPSCharacter::BeginPlay()
+{
+	/*
+	*	Make sure we start with our weapon mesh.
+	*/
+	if (GunComponent->GetEquippedWeapon() && GunComponent->GetEquippedWeapon()->GetMesh())
+	{
+		GunMesh->SkeletalMesh = GunComponent->GetEquippedWeapon()->GetMesh();
+	}
+
+	Super::BeginPlay();
 }
 
 void ASimpleFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -185,8 +197,8 @@ void ASimpleFPSCharacter::OnDeath()
 	BP_OnDeath();
 }
 
-void ASimpleFPSCharacter::OnWeaponChanged(const FGunInformation& NewWeapon)
+void ASimpleFPSCharacter::OnWeaponChanged(const UWeaponAsset* NewWeapon)
 {
-    GunMesh->SkeletalMesh = NewWeapon.Mesh;
+    GunMesh->SkeletalMesh = NewWeapon->GetMesh();
 }
 

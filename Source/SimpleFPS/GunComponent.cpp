@@ -8,6 +8,7 @@
 #include "TimerManager.h"
 #include "Components/SphereComponent.h"
 
+#include "WeaponAsset.h"
 #include "Projectile.h"
 #include "SimpleFPSCharacter.h"
 #include "SimpleFPSPlayerController.h"
@@ -24,20 +25,20 @@ void UGunComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(UGunComponent, CurrentGunInformation);
+    DOREPLIFETIME(UGunComponent, EquippedWeapon);
 
     DOREPLIFETIME_CONDITION(UGunComponent, CurrentAmmunition, COND_OwnerOnly);
 }
 
 void UGunComponent::AddAmmo(int32 Amount)
 {
-	CurrentAmmunition = FMath::Clamp(CurrentAmmunition + Amount, 0, CurrentGunInformation.MaxAmmunition);
+	CurrentAmmunition = FMath::Clamp(CurrentAmmunition + Amount, 0, EquippedWeapon->GetMaxAmmunition());
 }
 
 bool UGunComponent::CanFire()
 {
     //Check so we have ammunition and the shot 'cooldown' has passed.
-    return CurrentAmmunition > 0 && (GetWorld()->GetTimeSeconds() - CurrentGunInformation.TimeBetweenShots) > TimeOfLastShot;
+    return CurrentAmmunition > 0 && (GetWorld()->GetTimeSeconds() - EquippedWeapon->GetTimeBetweenShots()) > TimeOfLastShot;
 }
 
 void UGunComponent::LocalOnFirePressed()
@@ -58,9 +59,9 @@ void UGunComponent::ServerOnFirePressed_Implementation()
 {
 	Fire();
 
-    if (CurrentGunInformation.bAutomaticFire)
+    if (EquippedWeapon->IsAutomaticFire())
     {
-        GetWorld()->GetTimerManager().SetTimer(AutomaticFireTimer, FTimerDelegate::CreateUObject(this, &UGunComponent::Fire), CurrentGunInformation.TimeBetweenShots, false);
+        GetWorld()->GetTimerManager().SetTimer(AutomaticFireTimer, FTimerDelegate::CreateUObject(this, &UGunComponent::Fire), EquippedWeapon->GetTimeBetweenShots(), false);
     }
 
 }
@@ -79,15 +80,18 @@ void UGunComponent::Fire()
 
         FTransform ProjectileTransform = Owner->GetFireTransform();
 
-        FVector ProjectileCollisionOffset = ProjectileTransform.GetRotation().RotateVector(FVector(CurrentGunInformation.Projectile.GetDefaultObject()->SphereCollider->GetScaledSphereRadius(), 0.f, 0.f));
+		/*
+		*	Calculate offset location so the projectile doesnt get stuck in our own collider.
+		*/
+        FVector ProjectileCollisionOffset = ProjectileTransform.GetRotation().RotateVector(FVector(EquippedWeapon->GetProjectileActor().GetDefaultObject()->SphereCollider->GetScaledSphereRadius(), 0.f, 0.f));
         ProjectileTransform.SetLocation(ProjectileTransform.GetLocation() + ProjectileCollisionOffset);
 
         //Spawn projectile.
-        AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(CurrentGunInformation.Projectile, ProjectileTransform);
+        AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(EquippedWeapon->GetProjectileActor(), ProjectileTransform);
         if (Projectile)
         {
             //Initialize values in projectile.
-            Projectile->SetForwardVelocity(CurrentGunInformation.ProjectileSpeed);
+            Projectile->SetForwardVelocity(EquippedWeapon->GetProjectileSpeed());
             Projectile->SourceCharacter = Cast<ASimpleFPSPlayerController>(Owner->GetController());
 
             //Subtract one piece of ammo from us.
@@ -121,10 +125,10 @@ void UGunComponent::OnFire()
 	UE_LOG(LogTemp, Log, TEXT("%s fired a shot %s"), *NameOfOwner, *NetworkRole);
 #endif
 
-	OnWeaponFired.Broadcast(CurrentGunInformation);
+	OnWeaponFired.Broadcast(EquippedWeapon);
 }
 
-void UGunComponent::OnRep_CurrentGunInformation()
+void UGunComponent::OnRep_EquippedWeapon()
 {
-    OnWeaponInfoChanged.Broadcast(CurrentGunInformation);
+    OnWeaponInfoChanged.Broadcast(EquippedWeapon);
 }

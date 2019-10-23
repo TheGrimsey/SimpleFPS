@@ -6,41 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "GunComponent.generated.h"
 
-USTRUCT(BlueprintType)
-struct FGunInformation
-{
-    GENERATED_BODY()
-
-    FGunInformation(USkeletalMesh* InMesh = nullptr, int32 InMaxAmmunition = 0, bool InAutomaticFire = false, float InTimeBetweenShots = 0.f, TSubclassOf<class AProjectile> InProjectile = nullptr, float InProjectileSpeed = 1000.f) {
-		Mesh = InMesh;
-		MaxAmmunition = InMaxAmmunition;
-		bAutomaticFire = InAutomaticFire;
-		TimeBetweenShots = InTimeBetweenShots;
-		Projectile = InProjectile;
-		ProjectileSpeed = InProjectileSpeed;
-    }
-
-    UPROPERTY(EditAnywhere)
-    class USkeletalMesh* Mesh = nullptr;
-
-    UPROPERTY(EditAnywhere)
-    int32 MaxAmmunition = 0;
-
-    UPROPERTY(EditAnywhere)
-    bool bAutomaticFire = false;
-
-    UPROPERTY(EditAnywhere)
-    float TimeBetweenShots = 0.f;
-
-    UPROPERTY(EditAnywhere)
-    TSubclassOf<class AProjectile> Projectile = nullptr;
-
-    UPROPERTY(EditAnywhere)
-    float ProjectileSpeed = 1000.f;
-};
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponInfoChanged, const FGunInformation&, NewWeapon);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponFired, const FGunInformation&, WeaponUsed);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponInfoChanged, const class UWeaponAsset*, NewWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponFired, const class UWeaponAsset*, WeaponUsed);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEFPS_API UGunComponent : public UActorComponent
@@ -93,19 +60,13 @@ public:
     }
 
     UFUNCTION(BlueprintPure)
-    int32 GetMaxAmmunition()
+    class UWeaponAsset* GetEquippedWeapon()
     {
-        return CurrentGunInformation.MaxAmmunition;
+        return EquippedWeapon;
     }
 
     UFUNCTION()
-    FGunInformation GetCurrentGunInformation()
-    {
-        return CurrentGunInformation;
-    }
-
-    UFUNCTION()
-    void OnRep_CurrentGunInformation();
+    void OnRep_EquippedWeapon();
 
     /*
     *   Variables
@@ -118,8 +79,8 @@ public:
 	FOnWeaponFired OnWeaponFired;
 
 protected:
-    UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_CurrentGunInformation)
-    FGunInformation CurrentGunInformation;
+    UPROPERTY(EditAnywhere, Replicated, ReplicatedUsing=OnRep_EquippedWeapon)
+    class UWeaponAsset* EquippedWeapon;
 
     UPROPERTY(EditAnywhere, Replicated)
     int32 CurrentAmmunition = 0;
