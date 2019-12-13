@@ -46,11 +46,20 @@ void ASimpleFPSGameModeBase::PostLogin(APlayerController* PlayerController)
 {
 	Super::PostLogin(PlayerController);
 
-	/*
-	*	SET PLAYER TEAM!
-	*/
 	if (ASimpleFPSPlayerState* NewPlayerState = PlayerController->GetPlayerState<ASimpleFPSPlayerState>())
 	{
+		/*
+		*	Register death callbacks.
+		*/
+		FScriptDelegate DeathDelegate;
+		DeathDelegate.BindUFunction(this, TEXT("OnPlayerDeath"));
+
+		NewPlayerState->OnCharacterDeath.Add(DeathDelegate);
+
+		/*
+		*	SET PLAYER TEAM!
+		*/
+
 		//Free for all. Just have team at 0.
 		if (Teams == 0)
 		{
@@ -91,4 +100,9 @@ void ASimpleFPSGameModeBase::PostLogin(APlayerController* PlayerController)
 		//Assign player to smallest team;
 		NewPlayerState->Team = SmallestTeam;
 	}
+}
+
+void ASimpleFPSGameModeBase::OnPlayerDeath(ASimpleFPSPlayerState* KilledPlayer, ASimpleFPSPlayerState* Killer)
+{
+	AddKillForTeam(Killer->Team);
 }

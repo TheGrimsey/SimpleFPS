@@ -23,6 +23,9 @@ public:
 
 	virtual void PostLogin(APlayerController* PlayerController) override;
 
+	UFUNCTION()
+	void OnPlayerDeath(class ASimpleFPSPlayerState* KilledPlayer, class ASimpleFPSPlayerState* Killer);
+
 	FORCEINLINE bool IsFFA()
 	{
 		return Teams == 0;

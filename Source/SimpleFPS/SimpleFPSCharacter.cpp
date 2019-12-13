@@ -195,7 +195,7 @@ void ASimpleFPSCharacter::OnHealthChanged(float NewHealth, float OldHealth, ASim
 void ASimpleFPSCharacter::OnDeath(ASimpleFPSPlayerState* Killer)
 {
     //Notify state of our death.
-    ASimpleFPSPlayerState* FPSState = Cast<ASimpleFPSPlayerState>(GetController());
+    ASimpleFPSPlayerState* FPSState = Cast<ASimpleFPSPlayerState>(GetPlayerState());
     if (FPSState)
     {
 		FPSState->OnDeath(Killer);
