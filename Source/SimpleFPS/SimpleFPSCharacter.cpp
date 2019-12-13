@@ -16,13 +16,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 
+#include "TimerManager.h"
+
 #include "UnrealNetwork.h"
 
 // Sets default values
 ASimpleFPSCharacter::ASimpleFPSCharacter()
 {
  	// We don't want this actor to tick.
-    PrimaryActorTick.bStartWithTickEnabled = false;
 	PrimaryActorTick.bCanEverTick = false;
 
     // Rotate Yaw (left&right) based on controller rotation.
@@ -90,6 +91,12 @@ void ASimpleFPSCharacter::BeginPlay()
 		GunMesh->SkeletalMesh = GunComponent->GetEquippedWeapon()->GetMesh();
 	}
 
+	//Set timer for ammo regen.
+	static const FName AmmoRegenFunc = TEXT("RegenerateAmmo");
+
+	FTimerHandle AmmoTimer;
+	GetWorldTimerManager().SetTimer(AmmoTimer, FTimerDelegate::CreateUFunction(this, AmmoRegenFunc), TimeBetweenAmmoRegen, true);
+
 	Super::BeginPlay();
 }
 
@@ -108,6 +115,18 @@ void ASimpleFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
     DOREPLIFETIME(ASimpleFPSCharacter, GunComponent);
 }
+
+FTransform ASimpleFPSCharacter::GetFireTransform()
+{
+	//Rotation. Just our controller rotation.
+	FRotator Rotation = GetControlRotation();
+
+	//Location. We add our capsule radius onto it so it doesn't get stuck in us.
+	FVector Location = CameraComponent->GetComponentLocation() + GetControlRotation().RotateVector(FVector(GetCapsuleComponent()->GetScaledCapsuleRadius(), 0.f, 0.f));
+
+	return FTransform(Rotation, Location);
+}
+
 
 // Called to bind functionality to input
 void ASimpleFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -173,17 +192,6 @@ void ASimpleFPSCharacter::MoveRight(float Value)
     }
 }
 
-FTransform ASimpleFPSCharacter::GetFireTransform()
-{
-    //Rotation. Just our controller rotation.
-    FRotator Rotation = GetControlRotation();
-
-    //Location. We add our capsule radius onto it so it doesn't get stuck in us.
-    FVector Location = CameraComponent->GetComponentLocation() + GetControlRotation().RotateVector(FVector(GetCapsuleComponent()->GetScaledCapsuleRadius(), 0.f, 0.f));
-
-    return FTransform(Rotation, Location);
-}
-
 void ASimpleFPSCharacter::OnHealthChanged(float NewHealth, float OldHealth, ASimpleFPSPlayerState* Changer)
 {
     if (NewHealth <= 0.f)
@@ -210,5 +218,10 @@ void ASimpleFPSCharacter::OnDeath(ASimpleFPSPlayerState* Killer)
 void ASimpleFPSCharacter::OnWeaponChanged(const UWeaponAsset* NewWeapon)
 {
     GunMesh->SkeletalMesh = NewWeapon->GetMesh();
+}
+
+void ASimpleFPSCharacter::RegenerateAmmo()
+{
+	GunComponent->AddAmmo(FMath::RandRange(MinAmmoRegenAmount, MaxAmmoRegenAmount));
 }
 

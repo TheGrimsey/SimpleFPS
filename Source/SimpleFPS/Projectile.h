@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+
+#include "WorldCollision.h"
+
 #include "Projectile.generated.h"
 
 UCLASS()
@@ -27,6 +30,8 @@ protected:
 
     // Called to blow up the projectile.
     void Explode();
+
+	void HandleAsyncExplosionOverlap(const FTraceHandle& TraceHandle, FOverlapDatum& OverlapDatum);
 
 	UFUNCTION()
 	void OnRep_Team();
@@ -76,6 +81,8 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing=OnRep_Team)
 	int Team;
+
+	FOverlapDelegate OverlapDelegate;
 
 protected:
     //Timer for the explosion delay.

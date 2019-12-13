@@ -5,6 +5,7 @@
 
 #include "TimerManager.h"
 #include "Engine/World.h"
+#include "WorldCollision.h"
 
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -51,6 +52,8 @@ void AProjectile::Init(ASimpleFPSPlayerState* SourcePlayerState, float StartVelo
 
 	ProjectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector * StartVelocity);
 	SetForwardVelocity(StartVelocity);
+
+	OverlapDelegate.BindUObject(this, &AProjectile::HandleAsyncExplosionOverlap);
 }
 
 void AProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -85,61 +88,62 @@ void AProjectile::OnHit(const FHitResult& ImpactResult, const FVector& ImpactVel
 
 void AProjectile::Explode()
 {
-	static FName Profile = FName(TEXT("Explosion"));
+	static FName FunctionName = FName(TEXT("HandleAsyncExplosionOverlap"));
 
 	FCollisionQueryParams CollisionQueryParams;
 	CollisionQueryParams.AddIgnoredActor(this);
 
-    TArray<FOverlapResult> Hits;
-    if (GetWorld()->OverlapMultiByProfile(Hits, GetActorLocation(), GetActorRotation().Quaternion(), Profile, FCollisionShape::MakeSphere(ExplosionRadius), CollisionQueryParams))
-    {
-        //Loop through all objects we hit.
-        for (FOverlapResult Hit : Hits)
-        {
-            //Deal damage.
-            UHealthComponent* TargetHealthComponent = Cast<UHealthComponent>(Hit.Actor->GetComponentByClass(UHealthComponent::StaticClass()));
-            if (TargetHealthComponent)
-            {
-				APawn* HitPawn = Cast<APawn>(Hit.Actor);
-				ASimpleFPSPlayerState* HitPlayerState = nullptr;
-				if (HitPawn)
-				{
-					HitPlayerState = HitPawn->GetPlayerState<ASimpleFPSPlayerState>();
-				}
+	GetWorld()->AsyncOverlapByChannel(GetActorLocation(), GetActorRotation().Quaternion(), ECollisionChannel::ECC_GameTraceChannel1, FCollisionShape::MakeSphere(ExplosionRadius), CollisionQueryParams, FCollisionResponseParams(), &OverlapDelegate);
+}
 
-				//Deal damage to target and if they die because of it we notify our sourcecharacter (if it is still valid).
-				if (TargetHealthComponent->Damage(ExplosionDamage, SourceState.Get()))
-				{
-					/*
-					*	Check if hit actor is teammate if so let's not grant a kill credit for it.
-					*/
-					bool bShouldGetKillCredit = HitPlayerState && HitPlayerState->Team != Team;
+void AProjectile::HandleAsyncExplosionOverlap(const FTraceHandle& TraceHandle, FOverlapDatum& OverlapDatum)
+{
+	//Loop through all objects we hit.
+	for (FOverlapResult Hit : OverlapDatum.OutOverlaps)
+	{
+		//Deal damage.
+		UHealthComponent* TargetHealthComponent = Cast<UHealthComponent>(Hit.Actor->GetComponentByClass(UHealthComponent::StaticClass()));
+		if (TargetHealthComponent)
+		{
+			APawn* HitPawn = Cast<APawn>(Hit.Actor);
+			ASimpleFPSPlayerState* HitPlayerState = nullptr;
+			if (HitPawn)
+			{
+				HitPlayerState = HitPawn->GetPlayerState<ASimpleFPSPlayerState>();
+			}
 
-					if (bShouldGetKillCredit)
+			//Deal damage to target and if they die because of it we notify our sourcecharacter (if it is still valid).
+			if (TargetHealthComponent->Damage(ExplosionDamage, SourceState.Get()))
+			{
+				/*
+				*	Check if hit actor is teammate if so let's not grant a kill credit for it.
+				*/
+				bool bShouldGetKillCredit = HitPlayerState && HitPlayerState->Team != Team;
+
+				if (bShouldGetKillCredit)
+				{
+					if (SourceState.IsValid())
 					{
-						if (SourceState.IsValid())
-						{
-							SourceState.Get()->OnGotKill(HitPlayerState);
-						}
+						SourceState.Get()->OnGotKill(HitPlayerState);
+					}
 
-						if (ASimpleFPSGameModeBase * SimpleFPSGameMode = Cast<ASimpleFPSGameModeBase>(GetWorld()->GetAuthGameMode()))
-						{
-							SimpleFPSGameMode->AddKillForTeam(Team);
-						}
+					if (ASimpleFPSGameModeBase * SimpleFPSGameMode = Cast<ASimpleFPSGameModeBase>(GetWorld()->GetAuthGameMode()))
+					{
+						SimpleFPSGameMode->AddKillForTeam(Team);
 					}
 				}
-            }
+			}
+		}
 
-            //Apply explosion force.
-            UCharacterMovementComponent* CharacterMoveComp = Cast<UCharacterMovementComponent>(Hit.Actor->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
-            if (CharacterMoveComp)
-            {
-                CharacterMoveComp->AddRadialImpulse(GetActorLocation(), ExplosionRadius, ExplosionForce, ERadialImpulseFalloff::RIF_Constant, true);
-            }
-        }
-    }
+		//Apply explosion force.
+		UCharacterMovementComponent* CharacterMoveComp = Cast<UCharacterMovementComponent>(Hit.Actor->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+		if (CharacterMoveComp)
+		{
+			CharacterMoveComp->AddRadialImpulse(GetActorLocation(), ExplosionRadius, ExplosionForce, ERadialImpulseFalloff::RIF_Constant, true);
+		}
+	}
 
-    Destroy();
+	Destroy();
 }
 
 void AProjectile::OnRep_Team()

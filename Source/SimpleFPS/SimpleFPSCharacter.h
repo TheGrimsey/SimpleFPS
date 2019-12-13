@@ -23,7 +23,10 @@ public:
     //Handles deciding what properties to replicated to who.
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-public:	
+	//Returns the transform from which our bullets should come from.
+	FTransform GetFireTransform();
+
+protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -39,10 +42,6 @@ public:
     //Handles Right movement input.
     void MoveRight(float Value);
 
-    //Returns the transform from which our bullets should come from.
-    FTransform GetFireTransform();
-
-protected:
     UFUNCTION()
     void OnHealthChanged(float NewHealth, float OldHealth, class ASimpleFPSPlayerState* Changer);
 
@@ -57,6 +56,8 @@ protected:
     UFUNCTION()
     void OnWeaponChanged(const class UWeaponAsset* NewWeapon);
 
+	UFUNCTION()
+	void RegenerateAmmo();
     /*
     *   Variables
     */
@@ -64,15 +65,21 @@ public:
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Replicated)
     class UHealthComponent* HealthComponent;
 
-    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Replicated)
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* CameraComponent;
+
+    UPROPERTY(Category = Weapons, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"), Replicated)
     class UGunComponent* GunComponent;
 
-    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(Category = Weapons, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class USkeletalMeshComponent* GunMesh;
     
-    UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    class UCameraComponent* CameraComponent;
+	UPROPERTY(Category = Weapons, EditDefaultsOnly)
+	float TimeBetweenAmmoRegen = 3;
 
-	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FName DeadCollisionProfile;
+	UPROPERTY(Category = Weapons, EditDefaultsOnly)
+	int MinAmmoRegenAmount = 2;
+
+	UPROPERTY(Category = Weapons, EditDefaultsOnly)
+	int MaxAmmoRegenAmount = 4;
 };
