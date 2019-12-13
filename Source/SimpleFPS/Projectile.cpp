@@ -13,6 +13,7 @@
 #include "HealthComponent.h"
 
 #include "SimpleFPSPlayerController.h"
+#include "SimpleFPSPlayerState.h"
 #include "UnrealNetwork.h"
 
 // Sets default values
@@ -82,17 +83,39 @@ void AProjectile::Explode()
         //Loop through all objects we hit.
         for (FHitResult Hit : Hits)
         {
-            //Check so we haven't hit this actor already.
-            if (ActorsHit.Contains(Hit.Actor)) continue;
+            //Check so Actor still exists and we haven't hit this actor already.
+            if (!Hit.Actor.IsValid() || ActorsHit.Contains(Hit.Actor)) continue;
 
             //Deal damage.
             UHealthComponent* TargetHealthComponent = Cast<UHealthComponent>(Hit.Actor->GetComponentByClass(UHealthComponent::StaticClass()));
             if (TargetHealthComponent)
             {
-				//Deal damage to target and if they die because of it we notify our sourcecharacter.
-				if (TargetHealthComponent->Damage(Damage))
+				APawn* HitPawn = Cast<APawn>(Hit.Actor);
+				ASimpleFPSPlayerState* HitPlayerState = nullptr;
+				if (HitPawn)
 				{
-					SourceCharacter->OnPawnGotKill();
+					HitPlayerState = HitPawn->GetPlayerState<ASimpleFPSPlayerState>();
+				}
+
+				//Deal damage to target and if they die because of it we notify our sourcecharacter (if it is still valid).
+				if (TargetHealthComponent->Damage(Damage) && SourceCharacter.IsValid())
+				{
+					bool bShouldGetKillCredit = true;
+
+					/*
+					*	Check if hit actor is teammate if so let's not grant a kill credit for it.
+					*/
+					if (HitPlayerState)
+					{
+						ASimpleFPSPlayerState* SourceState = SourceCharacter.Get()->GetPlayerState<ASimpleFPSPlayerState>();
+						bShouldGetKillCredit = SourceState && !HitPlayerState->IsFriendly(SourceState);
+
+					}
+
+					if (bShouldGetKillCredit)
+					{
+						SourceCharacter.Get()->OnPawnGotKill();
+					}
 				}
             }
 
@@ -100,7 +123,7 @@ void AProjectile::Explode()
             UCharacterMovementComponent* CharacterMoveComp = Cast<UCharacterMovementComponent>(Hit.Actor->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
             if (CharacterMoveComp)
             {
-                CharacterMoveComp->AddRadialImpulse(GetActorLocation(), ExplosionRadius, ExplosionForce, ERadialImpulseFalloff::RIF_Linear, true);
+                CharacterMoveComp->AddRadialImpulse(GetActorLocation(), ExplosionRadius, ExplosionForce, ERadialImpulseFalloff::RIF_Constant, true);
             }
             ActorsHit.Add(Hit.Actor.Get());
         }

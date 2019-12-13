@@ -63,7 +63,7 @@ protected:
 public:
     //The character that fired this projectile.
     UPROPERTY(VisibleInstanceOnly)
-    class ASimpleFPSPlayerController* SourceCharacter;
+    TWeakObjectPtr<class ASimpleFPSPlayerController> SourceCharacter;
 
 protected:
     //Timer for the explosion delay.

@@ -90,6 +90,13 @@ void ASimpleFPSCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ASimpleFPSCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	BP_OnRepPlayerState();
+}
+
 void ASimpleFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);

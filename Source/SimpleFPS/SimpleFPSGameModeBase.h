@@ -17,6 +17,8 @@ class SIMPLEFPS_API ASimpleFPSGameModeBase : public AGameModeBase
 public:
     void OnPlayerDeath(class ASimpleFPSPlayerController* Player, APawn* Pawn);
 
+	virtual void PostLogin(APlayerController* PlayerController) override;
+
     /*
     *   Variables
     */
@@ -28,4 +30,7 @@ public:
     //How long the player stays dead before respawning. TODO
     UPROPERTY(EditAnywhere)
     float RespawnTime = 5.f;
+
+	UPROPERTY(EditAnywhere)
+	int Teams = 4;
 };

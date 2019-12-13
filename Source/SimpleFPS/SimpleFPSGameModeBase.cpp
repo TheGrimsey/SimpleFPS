@@ -2,6 +2,9 @@
 
 
 #include "SimpleFPSGameModeBase.h"
+#include "SimpleFPSPlayerState.h"
+
+#include "GameFramework/GameState.h"
 
 #include "SimpleFPSPlayerController.h"
 
@@ -9,4 +12,47 @@ void ASimpleFPSGameModeBase::OnPlayerDeath(ASimpleFPSPlayerController* Player, A
 {
     //Set the old pawn (now corpse) to be killed after CorpseLifeTime.
     Pawn->SetLifeSpan(CorpseLifeTime);
+}
+
+void ASimpleFPSGameModeBase::PostLogin(APlayerController* PlayerController)
+{
+	Super::PostLogin(PlayerController);
+
+	/*
+	*	SET PLAYER TEAM!
+	*/
+	if (ASimpleFPSPlayerState* NewPlayerState = PlayerController->GetPlayerState<ASimpleFPSPlayerState>())
+	{
+		//Determine team with least players
+		TArray<int> MembersInEachTeam = TArray<int>();
+		MembersInEachTeam.Init(0, Teams);
+
+		//Count all team members
+		if (GetGameState<AGameStateBase>())
+		{
+			for (APlayerState* PlayerState : GetGameState<AGameStateBase>()->PlayerArray)
+			{
+				if (NewPlayerState == PlayerState) continue;
+
+				if (ASimpleFPSPlayerState* FPSPlayerState = Cast<ASimpleFPSPlayerState>(PlayerState))
+				{
+					MembersInEachTeam[FPSPlayerState->Team]++;
+				}
+			}
+		}
+
+		//Find smallest team.
+		int SmallestTeam = 0;
+
+		for (int i = 0; i < MembersInEachTeam.Num(); ++i)
+		{
+			if (MembersInEachTeam[i] < MembersInEachTeam[SmallestTeam])
+			{
+				SmallestTeam = i;
+			}
+		}
+
+		//Assign player to smallest team;
+		NewPlayerState->Team = SmallestTeam;
+	}
 }

@@ -18,7 +18,7 @@ public:
 
 	virtual void BeginPlay() override;
 
-protected:
+	virtual void OnRep_PlayerState();
 
     //Handles deciding what properties to replicated to who.
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -50,6 +50,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnDeath();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnRepPlayerState();
 
     UFUNCTION()
     void OnWeaponChanged(const class UWeaponAsset* NewWeapon);
