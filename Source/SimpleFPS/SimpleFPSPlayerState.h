@@ -6,6 +6,10 @@
 #include "GameFramework/PlayerState.h"
 #include "SimpleFPSPlayerState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterKill, ASimpleFPSPlayerState*, Killer, ASimpleFPSPlayerState*, KilledPlayer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterDeath, ASimpleFPSPlayerState*, KilledPlayer, ASimpleFPSPlayerState*, Killer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterRespawn, ASimpleFPSPlayerState*, RespawnedPlayer);
+
 /**
  * 
  */
@@ -14,10 +18,34 @@ class SIMPLEFPS_API ASimpleFPSPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
+	/*
+	*	Variables
+	*/
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
-	int Team = 0;
+	UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly)
+	int32 Team = 0;
 
+	//Amount of times we have died.
+	UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly)
+	int32 Deaths = 0;
+
+	//Amount of kills we have. Not specifically enemies.
+	UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly)
+	int32 Kills = 0;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterKill OnCharacterKill;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterDeath OnCharacterDeath;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterRespawn OnCharacterRespawn;
+	
+	/*
+	*	Methods
+	*/
+public:
 	//Returns true if the other player is friendly to us.
 	UFUNCTION(BlueprintCallable)
 	bool IsFriendly(ASimpleFPSPlayerState* Player)
@@ -26,4 +54,10 @@ public:
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	void OnGotKill(ASimpleFPSPlayerState* KilledCharacter);
+
+	void OnDeath(ASimpleFPSPlayerState* Killer);
+
+	void OnRespawn();
 };

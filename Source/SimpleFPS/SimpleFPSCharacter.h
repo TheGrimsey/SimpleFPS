@@ -44,12 +44,12 @@ public:
 
 protected:
     UFUNCTION()
-    void OnHealthChanged(float NewHealth, float OldHealth);
+    void OnHealthChanged(float NewHealth, float OldHealth, class ASimpleFPSPlayerState* Changer);
 
-    void OnDeath();
+    void OnDeath(class ASimpleFPSPlayerState* Killer);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnDeath();
+	void BP_OnDeath(class ASimpleFPSPlayerState* Killer);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnRepPlayerState();
@@ -72,4 +72,7 @@ public:
     
     UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     class UCameraComponent* CameraComponent;
+
+	UPROPERTY(Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FName DeadCollisionProfile;
 };

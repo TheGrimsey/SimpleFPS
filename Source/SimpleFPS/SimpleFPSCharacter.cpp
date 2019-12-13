@@ -3,7 +3,7 @@
 
 #include "SimpleFPSCharacter.h"
 
-#include "SimpleFPSPlayerController.h"
+#include "SimpleFPSPlayerState.h"
 
 #include "HealthComponent.h"
 #include "GunComponent.h"
@@ -62,10 +62,13 @@ ASimpleFPSCharacter::ASimpleFPSCharacter()
         GunComponent->OnWeaponInfoChanged.Add(OnWeaponChangedDelegate);
     }
 
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
     /*
     *   Set up GunMesh;
     */
     GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun Mesh"));
+	GunMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     GunMesh->SetupAttachment(GetMesh(), TEXT("RightHand"));
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
@@ -181,27 +184,27 @@ FTransform ASimpleFPSCharacter::GetFireTransform()
     return FTransform(Rotation, Location);
 }
 
-void ASimpleFPSCharacter::OnHealthChanged(float NewHealth, float OldHealth)
+void ASimpleFPSCharacter::OnHealthChanged(float NewHealth, float OldHealth, ASimpleFPSPlayerState* Changer)
 {
     if (NewHealth <= 0.f)
     {
-        OnDeath();
+        OnDeath(Changer);
     }
 }
 
-void ASimpleFPSCharacter::OnDeath()
+void ASimpleFPSCharacter::OnDeath(ASimpleFPSPlayerState* Killer)
 {
-    //Notify controller of our death.
-    ASimpleFPSPlayerController* FPSController = Cast<ASimpleFPSPlayerController>(GetController());
-    if (FPSController)
+    //Notify state of our death.
+    ASimpleFPSPlayerState* FPSState = Cast<ASimpleFPSPlayerState>(GetController());
+    if (FPSState)
     {
-        FPSController->OnPawnDeath();
+		FPSState->OnDeath(Killer);
     }
 
     //Clear all the listeners from our health.
     HealthComponent->OnHealthChanged.Clear();
 
-	BP_OnDeath();
+	BP_OnDeath(Killer);
 }
 
 void ASimpleFPSCharacter::OnWeaponChanged(const UWeaponAsset* NewWeapon)

@@ -5,8 +5,36 @@
 #include "SimpleFPSPlayerState.h"
 
 #include "GameFramework/GameState.h"
+#include "Kismet/GameplayStatics.h" 
+#include "UnrealNetwork.h"
 
 #include "SimpleFPSPlayerController.h"
+
+
+void ASimpleFPSGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	//Parse teams.
+	FString TeamCount = UGameplayStatics::ParseOption(Options, TEXT("TeamCount"));
+	if (!TeamCount.IsEmpty() && FCString::IsNumeric(*TeamCount))
+	{
+		Teams = FCString::Atoi(*TeamCount);
+	}
+
+	TeamKills.Init(0, Teams);
+	TeamDeaths.Init(0, Teams);
+}
+
+void ASimpleFPSGameModeBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ASimpleFPSGameModeBase, Teams, COND_InitialOnly);
+
+	DOREPLIFETIME(ASimpleFPSGameModeBase, TeamKills);
+	DOREPLIFETIME(ASimpleFPSGameModeBase, TeamDeaths);
+}
 
 void ASimpleFPSGameModeBase::OnPlayerDeath(ASimpleFPSPlayerController* Player, APawn* Pawn)
 {
@@ -23,6 +51,14 @@ void ASimpleFPSGameModeBase::PostLogin(APlayerController* PlayerController)
 	*/
 	if (ASimpleFPSPlayerState* NewPlayerState = PlayerController->GetPlayerState<ASimpleFPSPlayerState>())
 	{
+		//Free for all. Just have team at 0.
+		if (Teams == 0)
+		{
+			NewPlayerState->Team = 0;
+
+			return;
+		}
+
 		//Determine team with least players
 		TArray<int> MembersInEachTeam = TArray<int>();
 		MembersInEachTeam.Init(0, Teams);

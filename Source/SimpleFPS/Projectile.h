@@ -15,6 +15,8 @@ public:
 	// Sets default values for this actor's properties
 	AProjectile();
 
+	void Init(class ASimpleFPSPlayerState* SourcePlayerState, float StartVelocity);
+
 protected:
     //Handles deciding what properties to replicated to who.
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -26,7 +28,12 @@ protected:
     // Called to blow up the projectile.
     void Explode();
 
-public:
+	UFUNCTION()
+	void OnRep_Team();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnRep_Team();
+
     UFUNCTION(NetMulticast, Reliable)
     void SetForwardVelocity(float Velocity);
 
@@ -34,7 +41,7 @@ public:
     *   Variables
     */
 public:
-    UPROPERTY(EditAnywhere, Replicated)
+    UPROPERTY(EditAnywhere)
     class UProjectileMovementComponent* ProjectileMovement;
 
     UPROPERTY(EditAnywhere)
@@ -46,7 +53,7 @@ public:
 protected:
     //Amount of damage the explosion from this projectile does.
     UPROPERTY(EditDefaultsOnly)
-    float Damage;
+    float ExplosionDamage;
 
     //The radius of this projectile's explosion.
     UPROPERTY(EditDefaultsOnly)
@@ -60,10 +67,15 @@ protected:
     UPROPERTY(EditDefaultsOnly)
     float ExploisionDelay;
 
-public:
+	/*
+	*	INSTANCED
+	*/
     //The character that fired this projectile.
     UPROPERTY(VisibleInstanceOnly)
-    TWeakObjectPtr<class ASimpleFPSPlayerController> SourceCharacter;
+    TWeakObjectPtr<class ASimpleFPSPlayerState> SourceState;
+
+	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing=OnRep_Team)
+	int Team;
 
 protected:
     //Timer for the explosion delay.

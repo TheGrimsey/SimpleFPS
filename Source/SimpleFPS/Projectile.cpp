@@ -14,6 +14,8 @@
 
 #include "SimpleFPSPlayerController.h"
 #include "SimpleFPSPlayerState.h"
+#include "SimpleFPSGameModeBase.h"
+
 #include "UnrealNetwork.h"
 
 // Sets default values
@@ -42,11 +44,20 @@ AProjectile::AProjectile()
     SetRootComponent(SphereCollider);
 }
 
+void AProjectile::Init(ASimpleFPSPlayerState* SourcePlayerState, float StartVelocity)
+{
+	SourceState = SourcePlayerState;
+	Team = SourcePlayerState->Team;
+
+	ProjectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector * StartVelocity);
+	SetForwardVelocity(StartVelocity);
+}
+
 void AProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(AProjectile, ProjectileMovement);
+    DOREPLIFETIME(AProjectile, Team);
 }
 
 void AProjectile::OnHit(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
@@ -74,18 +85,17 @@ void AProjectile::OnHit(const FHitResult& ImpactResult, const FVector& ImpactVel
 
 void AProjectile::Explode()
 {
-    TArray<FHitResult> Hits;
-    if (GetWorld()->SweepMultiByChannel(Hits, GetActorLocation(), GetActorLocation() + 0.01f, GetActorRotation().Quaternion(), ECollisionChannel::ECC_WorldDynamic, FCollisionShape::MakeSphere(ExplosionRadius)))
+	static FName Profile = FName(TEXT("Explosion"));
+
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor(this);
+
+    TArray<FOverlapResult> Hits;
+    if (GetWorld()->OverlapMultiByProfile(Hits, GetActorLocation(), GetActorRotation().Quaternion(), Profile, FCollisionShape::MakeSphere(ExplosionRadius), CollisionQueryParams))
     {
-        //List all actors we have already hit so we don't damage them multiple times.
-        TArray<AActor*> ActorsHit;
-
         //Loop through all objects we hit.
-        for (FHitResult Hit : Hits)
+        for (FOverlapResult Hit : Hits)
         {
-            //Check so Actor still exists and we haven't hit this actor already.
-            if (!Hit.Actor.IsValid() || ActorsHit.Contains(Hit.Actor)) continue;
-
             //Deal damage.
             UHealthComponent* TargetHealthComponent = Cast<UHealthComponent>(Hit.Actor->GetComponentByClass(UHealthComponent::StaticClass()));
             if (TargetHealthComponent)
@@ -98,23 +108,24 @@ void AProjectile::Explode()
 				}
 
 				//Deal damage to target and if they die because of it we notify our sourcecharacter (if it is still valid).
-				if (TargetHealthComponent->Damage(Damage) && SourceCharacter.IsValid())
+				if (TargetHealthComponent->Damage(ExplosionDamage, SourceState.Get()))
 				{
-					bool bShouldGetKillCredit = true;
-
 					/*
 					*	Check if hit actor is teammate if so let's not grant a kill credit for it.
 					*/
-					if (HitPlayerState)
-					{
-						ASimpleFPSPlayerState* SourceState = SourceCharacter.Get()->GetPlayerState<ASimpleFPSPlayerState>();
-						bShouldGetKillCredit = SourceState && !HitPlayerState->IsFriendly(SourceState);
-
-					}
+					bool bShouldGetKillCredit = HitPlayerState && HitPlayerState->Team != Team;
 
 					if (bShouldGetKillCredit)
 					{
-						SourceCharacter.Get()->OnPawnGotKill();
+						if (SourceState.IsValid())
+						{
+							SourceState.Get()->OnGotKill(HitPlayerState);
+						}
+
+						if (ASimpleFPSGameModeBase * SimpleFPSGameMode = Cast<ASimpleFPSGameModeBase>(GetWorld()->GetAuthGameMode()))
+						{
+							SimpleFPSGameMode->AddKillForTeam(Team);
+						}
 					}
 				}
             }
@@ -125,11 +136,15 @@ void AProjectile::Explode()
             {
                 CharacterMoveComp->AddRadialImpulse(GetActorLocation(), ExplosionRadius, ExplosionForce, ERadialImpulseFalloff::RIF_Constant, true);
             }
-            ActorsHit.Add(Hit.Actor.Get());
         }
     }
 
     Destroy();
+}
+
+void AProjectile::OnRep_Team()
+{
+	BP_OnRep_Team();
 }
 
 void AProjectile::SetForwardVelocity_Implementation(float Velocity)

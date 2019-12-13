@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth, float, OldHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthChanged, float, NewHealth, float, OldHealth, class ASimpleFPSPlayerState*, Attacker);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SIMPLEFPS_API UHealthComponent : public UActorComponent
@@ -26,10 +26,10 @@ public:
     void InitHealth(float InitalHealthValue);
 
     //Apply Damage removing health. Returns true if the character dies because of the damage.
-    bool Damage(float Damage);
+    bool Damage(float Damage, class ASimpleFPSPlayerState* Attacker);
 
     //Apply healing adding health.
-    void Heal(float Healing);
+    void Heal(float Healing, class ASimpleFPSPlayerState* Healer);
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool IsAlive()
@@ -38,12 +38,12 @@ public:
 	}
 
 private:
-    FORCEINLINE void ModHealth(float Modifier)
+    FORCEINLINE void ModHealth(float Modifier, class ASimpleFPSPlayerState* Modder)
     {
         float OldHealth = CurrentHealth;
         CurrentHealth = FMath::Clamp(CurrentHealth + Modifier, 0.f, MaxHealth);
 
-        OnHealthChanged.Broadcast(CurrentHealth, OldHealth);
+        OnHealthChanged.Broadcast(CurrentHealth, OldHealth, Modder);
     }
     /*
     *   Variables

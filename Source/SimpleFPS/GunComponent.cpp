@@ -11,7 +11,7 @@
 #include "WeaponAsset.h"
 #include "Projectile.h"
 #include "SimpleFPSCharacter.h"
-#include "SimpleFPSPlayerController.h"
+#include "SimpleFPSPlayerState.h"
 
 // Sets default values for this component's properties
 UGunComponent::UGunComponent()
@@ -91,8 +91,7 @@ void UGunComponent::Fire()
         if (Projectile)
         {
             //Initialize values in projectile.
-            Projectile->SetForwardVelocity(EquippedWeapon->GetProjectileSpeed());
-            Projectile->SourceCharacter = Cast<ASimpleFPSPlayerController>(Owner->GetController());
+			Projectile->Init(Owner->GetPlayerState<ASimpleFPSPlayerState>(), EquippedWeapon->GetProjectileSpeed());
 
             //Subtract one piece of ammo from us.
             CurrentAmmunition--;

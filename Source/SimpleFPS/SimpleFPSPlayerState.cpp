@@ -10,4 +10,26 @@ void ASimpleFPSPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASimpleFPSPlayerState, Team);
+
+	DOREPLIFETIME(ASimpleFPSPlayerState, Deaths);
+	DOREPLIFETIME(ASimpleFPSPlayerState, Kills);
+}
+
+void ASimpleFPSPlayerState::OnGotKill(ASimpleFPSPlayerState* KilledCharacter)
+{
+	++Kills;
+
+	OnCharacterKill.Broadcast(this, KilledCharacter);
+}
+
+void ASimpleFPSPlayerState::OnDeath(ASimpleFPSPlayerState* Killer)
+{
+	++Deaths;
+
+	OnCharacterDeath.Broadcast(this, Killer);
+}
+
+void ASimpleFPSPlayerState::OnRespawn()
+{
+	OnCharacterRespawn.Broadcast(this);
 }

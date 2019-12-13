@@ -2,32 +2,33 @@
 
 
 #include "SimpleFPSPlayerController.h"
-
 #include "Engine/World.h"
+
 #include "SimpleFPSGameModeBase.h"
+#include "SimpleFPSPlayerState.h"
+
 #include "TimerManager.h"
 #include "UnrealNetwork.h"
 
-void ASimpleFPSPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void ASimpleFPSPlayerController::BeginPlay()
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	if (ASimpleFPSPlayerState* FPSPlayerState = GetPlayerState<ASimpleFPSPlayerState>())
+	{
+		{
+			FScriptDelegate DeathDelegate;
+			DeathDelegate.BindUFunction(this, TEXT("OnPawnDeath"));
 
-	DOREPLIFETIME(ASimpleFPSPlayerController, Deaths);
-	DOREPLIFETIME(ASimpleFPSPlayerController, Kills);
+			FPSPlayerState->OnCharacterDeath.Add(DeathDelegate);
+		}
+	}
 }
 
 void ASimpleFPSPlayerController::OnPawnDeath()
 {
-    //Increase our death counter.
-    ++Deaths;
-
-    //Broadcast that our character has died.
-    OnCharacterDeath.Broadcast();
-
     if (!HasAuthority()) return;
 
     //Save our dead pawn.
-    APawn* OldPawn = GetPawn();
+    APawn* LastPawn = GetPawn();
 
     UnPossess();
 
@@ -35,7 +36,7 @@ void ASimpleFPSPlayerController::OnPawnDeath()
     if (FPSGamemode)
     {
         //Notify the gamemode that our character died.
-        FPSGamemode->OnPlayerDeath(this, OldPawn);
+        FPSGamemode->OnPlayerDeath(this, LastPawn);
 
         if (FPSGamemode->RespawnTime > 0.f)
         {
@@ -50,17 +51,15 @@ void ASimpleFPSPlayerController::OnPawnDeath()
 
 void ASimpleFPSPlayerController::OnPawnRespawn()
 {
-    OnCharacterRespawn.Broadcast();
+	if (ASimpleFPSPlayerState* SimpleFPSState = GetPlayerState<ASimpleFPSPlayerState>())
+	{
+		SimpleFPSState->OnRespawn();
+	}
 }
 
 void ASimpleFPSPlayerController::ClientOnPawnRespawn_Implementation()
 {
     OnPawnRespawn();
-}
-
-void ASimpleFPSPlayerController::OnPawnGotKill()
-{
-	++Kills;
 }
 
 void ASimpleFPSPlayerController::Respawn()

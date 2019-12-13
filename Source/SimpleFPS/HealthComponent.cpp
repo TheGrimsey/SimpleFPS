@@ -29,12 +29,12 @@ void UHealthComponent::InitHealth(float InitalHealthValue)
     MaxHealth = InitalHealthValue;
 }
 
-bool UHealthComponent::Damage(float Damage)
+bool UHealthComponent::Damage(float Damage, ASimpleFPSPlayerState* Attacker)
 {
 	if (IsAlive())
 	{
 		//Remove the absolute damage
-		ModHealth(-FMath::Abs(Damage));
+		ModHealth(-FMath::Abs(Damage), Attacker);
 
 		return !IsAlive();
 	}
@@ -43,11 +43,12 @@ bool UHealthComponent::Damage(float Damage)
 	return false;
 }
 
-void UHealthComponent::Heal(float Healing)
+void UHealthComponent::Heal(float Healing, ASimpleFPSPlayerState* Healer)
 {
+	//Only accept healing if we are still alive.
 	if (IsAlive())
 	{
 		//Add the absolute healing value.
-		ModHealth(FMath::Abs(Healing));
+		ModHealth(FMath::Abs(Healing), Healer);
 	}
 }
