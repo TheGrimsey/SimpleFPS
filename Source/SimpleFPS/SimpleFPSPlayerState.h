@@ -23,6 +23,9 @@ class SIMPLEFPS_API ASimpleFPSPlayerState : public APlayerState
 	*/
 public:
 	UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly)
+	bool NoTeam = false;
+
+	UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly)
 	int32 Team = 0;
 
 	//Amount of times we have died.
@@ -50,14 +53,25 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsFriendly(ASimpleFPSPlayerState* Player)
 	{
-		return Player->Team == Team;
+		return !NoTeam || Player->Team == Team;
 	}
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void SeamlessTravelTo(class APlayerState* NewPlayerState);
 
 	void OnGotKill(ASimpleFPSPlayerState* KilledCharacter);
 
 	void OnDeath(ASimpleFPSPlayerState* Killer);
 
 	void OnRespawn();
+
+	UFUNCTION(Client, Reliable)
+	void ClientOnGotKill(ASimpleFPSPlayerState* KilledCharacter);
+
+	UFUNCTION(Client, Reliable)
+	void ClientOnDeath(ASimpleFPSPlayerState* Killer);
+
+	UFUNCTION(Client, Reliable)
+	void ClientOnRespawn();
 };

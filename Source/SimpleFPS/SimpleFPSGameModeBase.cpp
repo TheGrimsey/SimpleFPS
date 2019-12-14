@@ -4,9 +4,11 @@
 #include "SimpleFPSGameModeBase.h"
 #include "SimpleFPSPlayerState.h"
 
-#include "GameFramework/GameState.h"
+#include "SimpleFPSGameState.h"
 #include "Kismet/GameplayStatics.h" 
 #include "UnrealNetwork.h"
+#include "GameFramework/GameSession.h"
+#include "Engine/World.h"
 
 #include "SimpleFPSPlayerController.h"
 
@@ -21,25 +23,27 @@ void ASimpleFPSGameModeBase::InitGame(const FString& MapName, const FString& Opt
 	{
 		Teams = FCString::Atoi(*TeamCount);
 	}
-
-	TeamKills.Init(0, Teams);
-	TeamDeaths.Init(0, Teams);
 }
 
-void ASimpleFPSGameModeBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void ASimpleFPSGameModeBase::InitGameState()
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	Super::InitGameState();
 
-	DOREPLIFETIME_CONDITION(ASimpleFPSGameModeBase, Teams, COND_InitialOnly);
-
-	DOREPLIFETIME(ASimpleFPSGameModeBase, TeamKills);
-	DOREPLIFETIME(ASimpleFPSGameModeBase, TeamDeaths);
+	if (ASimpleFPSGameState * FPSGameState = GetGameState<ASimpleFPSGameState>())
+	{
+		FPSGameState->Teams = Teams;
+		FPSGameState->TeamKills.Init(0, Teams);
+		FPSGameState->TeamDeaths.Init(0, Teams);
+	}
 }
 
 void ASimpleFPSGameModeBase::OnPlayerDeath(ASimpleFPSPlayerController* Player, APawn* Pawn)
 {
     //Set the old pawn (now corpse) to be killed after CorpseLifeTime.
-    Pawn->SetLifeSpan(CorpseLifeTime);
+	if (Pawn)
+	{
+		Pawn->SetLifeSpan(CorpseLifeTime);
+	}
 }
 
 void ASimpleFPSGameModeBase::PostLogin(APlayerController* PlayerController)
@@ -64,6 +68,7 @@ void ASimpleFPSGameModeBase::PostLogin(APlayerController* PlayerController)
 		if (Teams == 0)
 		{
 			NewPlayerState->Team = 0;
+			NewPlayerState->NoTeam = true;
 
 			return;
 		}
@@ -102,7 +107,30 @@ void ASimpleFPSGameModeBase::PostLogin(APlayerController* PlayerController)
 	}
 }
 
+FString ASimpleFPSGameModeBase::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal)
+{
+	FString returnString = Super::InitNewPlayer(NewPlayerController, UniqueId, Options, Portal);
+
+	FString PlayerName = UGameplayStatics::ParseOption(Options, TEXT("PlayerName"));
+	if (!PlayerName.IsEmpty())
+	{
+		NewPlayerController->PlayerState->SetPlayerName(PlayerName);
+	}
+
+	return returnString;
+}
+
+void ASimpleFPSGameModeBase::ServerTravel(const FString MapName)
+{
+	GetWorld()->ServerTravel(MapName);
+}
+
+void ASimpleFPSGameModeBase::KickPlayer(APlayerController* PlayerToKick, const FText& KickReason)
+{
+	GameSession->KickPlayer(PlayerToKick, KickReason);
+}
+
 void ASimpleFPSGameModeBase::OnPlayerDeath(ASimpleFPSPlayerState* KilledPlayer, ASimpleFPSPlayerState* Killer)
 {
-	AddKillForTeam(Killer->Team);
+
 }

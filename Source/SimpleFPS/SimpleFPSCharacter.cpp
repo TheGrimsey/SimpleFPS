@@ -133,17 +133,23 @@ void ASimpleFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASimpleFPSCharacter::OnFirePressed);
-    PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASimpleFPSCharacter::OnFireReleased);
+	static const FName Fire = TEXT("Fire");
+    PlayerInputComponent->BindAction(Fire, IE_Pressed, this, &ASimpleFPSCharacter::OnFirePressed);
+    PlayerInputComponent->BindAction(Fire, IE_Released, this, &ASimpleFPSCharacter::OnFireReleased);
 
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-    PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	static const FName Jump = TEXT("Jump");
+    PlayerInputComponent->BindAction(Jump, IE_Pressed, this, &ACharacter::Jump);
+    PlayerInputComponent->BindAction(Jump, IE_Released, this, &ACharacter::StopJumping);
 
-    PlayerInputComponent->BindAxis("MoveForward", this, &ASimpleFPSCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &ASimpleFPSCharacter::MoveRight);
+	static const FName MoveForward = TEXT("MoveForward");
+	static const FName MoveRight = TEXT("MoveRight");
+    PlayerInputComponent->BindAxis(MoveForward, this, &ASimpleFPSCharacter::MoveForward);
+    PlayerInputComponent->BindAxis(MoveRight, this, &ASimpleFPSCharacter::MoveRight);
 
-    PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-    PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	static const FName Turn = TEXT("Turn");
+	static const FName LookUp = TEXT("LookUp");
+    PlayerInputComponent->BindAxis(Turn, this, &APawn::AddControllerYawInput);
+    PlayerInputComponent->BindAxis(LookUp, this, &APawn::AddControllerPitchInput);
 
 }
 

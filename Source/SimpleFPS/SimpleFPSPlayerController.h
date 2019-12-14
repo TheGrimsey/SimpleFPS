@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "SimpleFPSPlayerController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRepPlayerState);
+
 /**
  * 
  */
@@ -32,6 +34,10 @@ public:
     UFUNCTION(Client, Reliable)
     void ClientOnPawnRespawn();
 
+	virtual void ClientSetHUD_Implementation(TSubclassOf<class AHUD> NewHUDClass) override;
+
+	virtual void OnRep_PlayerState();
+
 protected:
     UFUNCTION()
     void Respawn();
@@ -40,9 +46,13 @@ protected:
     *   Variables
     */
 public:
-
+	UPROPERTY(BlueprintAssignable)
+	FOnRepPlayerState OnRepPlayerState;
 
 protected:
+	UPROPERTY()
+	TSubclassOf<class AHUD> HudClass;
+
     UPROPERTY()
     struct FTimerHandle RespawnTimer;
 };

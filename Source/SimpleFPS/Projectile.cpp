@@ -15,7 +15,7 @@
 
 #include "SimpleFPSPlayerController.h"
 #include "SimpleFPSPlayerState.h"
-#include "SimpleFPSGameModeBase.h"
+#include "SimpleFPSGameState.h"
 
 #include "UnrealNetwork.h"
 
@@ -41,6 +41,7 @@ AProjectile::AProjectile()
 
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
     MeshComponent->SetupAttachment(SphereCollider);
+	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     SetRootComponent(SphereCollider);
 }
@@ -101,6 +102,8 @@ void AProjectile::HandleAsyncExplosionOverlap(const FTraceHandle& TraceHandle, F
 	//Loop through all objects we hit.
 	for (FOverlapResult Hit : OverlapDatum.OutOverlaps)
 	{
+		if (Hit.Actor == nullptr) continue;
+
 		//Deal damage.
 		UHealthComponent* TargetHealthComponent = Cast<UHealthComponent>(Hit.Actor->GetComponentByClass(UHealthComponent::StaticClass()));
 		if (TargetHealthComponent)
@@ -127,9 +130,9 @@ void AProjectile::HandleAsyncExplosionOverlap(const FTraceHandle& TraceHandle, F
 						SourceState.Get()->OnGotKill(HitPlayerState);
 					}
 
-					if (ASimpleFPSGameModeBase * SimpleFPSGameMode = Cast<ASimpleFPSGameModeBase>(GetWorld()->GetAuthGameMode()))
+					if (ASimpleFPSGameState* FPSGameState = GetWorld()->GetGameState<ASimpleFPSGameState>())
 					{
-						SimpleFPSGameMode->AddKillForTeam(Team);
+						FPSGameState->AddKillForTeam(Team);
 					}
 				}
 			}

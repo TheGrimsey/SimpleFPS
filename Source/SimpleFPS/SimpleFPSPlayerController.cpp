@@ -7,6 +7,8 @@
 #include "SimpleFPSGameModeBase.h"
 #include "SimpleFPSPlayerState.h"
 
+#include "GameFramework/HUD.h"
+
 #include "TimerManager.h"
 #include "UnrealNetwork.h"
 
@@ -20,7 +22,7 @@ void ASimpleFPSPlayerController::BeginPlay()
 
 			FPSPlayerState->OnCharacterDeath.Add(DeathDelegate);
 		}
-	}
+	} 
 }
 
 void ASimpleFPSPlayerController::OnPawnDeath()
@@ -60,6 +62,30 @@ void ASimpleFPSPlayerController::OnPawnRespawn()
 void ASimpleFPSPlayerController::ClientOnPawnRespawn_Implementation()
 {
     OnPawnRespawn();
+}
+
+void ASimpleFPSPlayerController::ClientSetHUD_Implementation(TSubclassOf<AHUD> NewHUDClass)
+{
+	if (PlayerState)
+	{
+		Super::ClientSetHUD_Implementation(NewHUDClass);
+	}
+	else
+	{
+		HudClass = NewHUDClass;
+	}
+}
+
+void ASimpleFPSPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	
+	OnRepPlayerState.Broadcast();
+
+	if (HudClass)
+	{
+		ClientSetHUD_Implementation(HudClass);
+	}
 }
 
 void ASimpleFPSPlayerController::Respawn()
