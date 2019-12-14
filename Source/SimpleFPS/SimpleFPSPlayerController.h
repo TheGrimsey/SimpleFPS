@@ -38,6 +38,8 @@ public:
 
 	virtual void OnRep_PlayerState();
 
+	virtual void GetSeamlessTravelActorList(bool bToEntry, TArray<class AActor*>& ActorList);
+
 protected:
     UFUNCTION()
     void Respawn();

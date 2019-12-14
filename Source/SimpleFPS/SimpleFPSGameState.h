@@ -8,6 +8,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStateAddedRemoved, class APlayerState*, PlayerState);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTeamGainedKill, int, Team, int, NewKillCount);
+
 /**
  * 
  */
@@ -27,6 +29,8 @@ public:
 	FORCEINLINE void AddKillForTeam(int Team)
 	{
 		TeamKills[Team]++;
+
+		OnTeamGainedKill.Broadcast(Team, TeamKills[Team]);
 	}
 
 	FORCEINLINE void AddDeathForTeam(int Team)
@@ -58,6 +62,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerStateAddedRemoved OnPlayerStateRemoved;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnTeamGainedKill OnTeamGainedKill;
 
 	UPROPERTY(EditDefaultsOnly, Replicated)
 	int Teams = 4;

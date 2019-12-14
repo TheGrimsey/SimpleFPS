@@ -34,6 +34,12 @@ void ASimpleFPSGameModeBase::InitGameState()
 		FPSGameState->Teams = Teams;
 		FPSGameState->TeamKills.Init(0, Teams);
 		FPSGameState->TeamDeaths.Init(0, Teams);
+
+		{        
+			FScriptDelegate OnTeamKillGainedDelegate;
+			OnTeamKillGainedDelegate.BindUFunction(this, FName(TEXT("OnTeamGainedKill")));
+			FPSGameState->OnTeamGainedKill.Add(OnTeamKillGainedDelegate);
+		}
 	}
 }
 
@@ -120,9 +126,23 @@ FString ASimpleFPSGameModeBase::InitNewPlayer(APlayerController* NewPlayerContro
 	return returnString;
 }
 
+void ASimpleFPSGameModeBase::StartMatch()
+{
+	/*
+	*	Reset playerstates.
+	*/
+	for (APlayerState* PlayerState : GetGameState<AGameStateBase>()->PlayerArray)
+	{
+		PlayerState->Reset();
+	}
+
+
+	ServerTravel(TEXT("TestMap"));
+}
+
 void ASimpleFPSGameModeBase::ServerTravel(const FString MapName)
 {
-	GetWorld()->ServerTravel(MapName);
+	GetWorld()->ServerTravel(MapName, false);
 }
 
 void ASimpleFPSGameModeBase::KickPlayer(APlayerController* PlayerToKick, const FText& KickReason)
@@ -130,7 +150,10 @@ void ASimpleFPSGameModeBase::KickPlayer(APlayerController* PlayerToKick, const F
 	GameSession->KickPlayer(PlayerToKick, KickReason);
 }
 
-void ASimpleFPSGameModeBase::OnPlayerDeath(ASimpleFPSPlayerState* KilledPlayer, ASimpleFPSPlayerState* Killer)
+void ASimpleFPSGameModeBase::OnTeamGainedKill(int Team, int NewKillCount)
 {
-
+	if (NewKillCount >= KillGoal)
+	{
+		ServerTravel(TEXT("Lobby"));
+	}
 }

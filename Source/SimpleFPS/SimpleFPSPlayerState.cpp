@@ -17,14 +17,27 @@ void ASimpleFPSPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME(ASimpleFPSPlayerState, Kills);
 }
 
-void ASimpleFPSPlayerState::SeamlessTravelTo(APlayerState* NewPlayerState)
+void ASimpleFPSPlayerState::CopyProperties(APlayerState* PlayerState)
 {
-	if (ASimpleFPSPlayerState * NewSimpleFPSPlayerState = Cast<ASimpleFPSPlayerState>(NewPlayerState))
+	Super::CopyProperties(PlayerState);
+
+	if (ASimpleFPSPlayerState * NewSimpleFPSPlayerState = Cast<ASimpleFPSPlayerState>(PlayerState))
 	{
 		NewSimpleFPSPlayerState->Team = Team;
 		NewSimpleFPSPlayerState->NoTeam = NoTeam;
+
+		NewSimpleFPSPlayerState->Kills = Kills;
+		NewSimpleFPSPlayerState->Deaths = Deaths;
 	}
 
+}
+
+void ASimpleFPSPlayerState::Reset()
+{
+	Kills = 0;
+	Deaths = 0;
+
+	Super::Reset();
 }
 
 void ASimpleFPSPlayerState::OnGotKill(ASimpleFPSPlayerState* KilledCharacter)

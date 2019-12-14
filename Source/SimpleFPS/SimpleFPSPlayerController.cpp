@@ -66,6 +66,11 @@ void ASimpleFPSPlayerController::ClientOnPawnRespawn_Implementation()
 
 void ASimpleFPSPlayerController::ClientSetHUD_Implementation(TSubclassOf<AHUD> NewHUDClass)
 {
+	if (MyHUD)
+	{
+		MyHUD->Destroy();
+	}
+
 	if (PlayerState)
 	{
 		Super::ClientSetHUD_Implementation(NewHUDClass);
@@ -85,6 +90,17 @@ void ASimpleFPSPlayerController::OnRep_PlayerState()
 	if (HudClass)
 	{
 		ClientSetHUD_Implementation(HudClass);
+	}
+}
+
+void ASimpleFPSPlayerController::GetSeamlessTravelActorList(bool bToEntry, TArray<class AActor*>& ActorList)
+{
+	Super::GetSeamlessTravelActorList(bToEntry, ActorList);
+
+	//Stop HUD from persisting.
+	if (MyHUD)
+	{
+		ActorList.Remove(MyHUD);
 	}
 }
 

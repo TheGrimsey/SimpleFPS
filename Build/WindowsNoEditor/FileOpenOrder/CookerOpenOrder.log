@@ -336,8 +336,8 @@
 "../../../Engine/Content/BasicShapes/Cylinder.uasset" 335
 "../../../Engine/Content/MapTemplates/SM_Template_Map_Floor.uasset" 336
 "../../../../../UnrealProjects/SimpleFPS/Content/Maps/TestMap.umap" 337
-"../../../../../UnrealProjects/SimpleFPS/Content/Lobby/LobbyGameState.uasset" 338
-"../../../../../UnrealProjects/SimpleFPS/Content/Lobby/PlayerInfoWidget.uasset" 339
+"../../../../../UnrealProjects/SimpleFPS/Content/Lobby/PlayerInfoWidget.uasset" 338
+"../../../../../UnrealProjects/SimpleFPS/Content/Lobby/PlayerList.uasset" 339
 "../../../../../UnrealProjects/SimpleFPS/Content/Lobby/LobbyWidget.uasset" 340
 "../../../../../UnrealProjects/SimpleFPS/Content/Lobby/LobbyHUD.uasset" 341
 "../../../../../UnrealProjects/SimpleFPS/Content/MainMenu/MainMenuPawn.uasset" 342

@@ -58,7 +58,9 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	virtual void SeamlessTravelTo(class APlayerState* NewPlayerState);
+	virtual void CopyProperties(APlayerState* PlayerState) override;
+
+	virtual void Reset() override;
 
 	void OnGotKill(ASimpleFPSPlayerState* KilledCharacter);
 

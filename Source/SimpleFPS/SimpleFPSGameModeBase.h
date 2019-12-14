@@ -26,13 +26,16 @@ public:
 	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal = TEXT(""));
 
 	UFUNCTION(BlueprintCallable)
+	void StartMatch();
+
+	UFUNCTION(BlueprintCallable)
 	void ServerTravel(const FString MapName);
 
 	UFUNCTION(BlueprintCallable)
 	void KickPlayer(APlayerController* PlayerToKick, const FText& KickReason);
 
 	UFUNCTION()
-	void OnPlayerDeath(class ASimpleFPSPlayerState* KilledPlayer, class ASimpleFPSPlayerState* Killer);
+	void OnTeamGainedKill(int Team, int NewKillCount);
 
     /*
     *   Variables
@@ -46,6 +49,11 @@ public:
     UPROPERTY(EditAnywhere)
     float RespawnTime = 5.f;
 
+	//Amount of teams in the match.
 	UPROPERTY(EditDefaultsOnly)
 	int Teams = 4;
+
+	//This is how many kills a team/player must get for the game to end.
+	UPROPERTY(EditDefaultsOnly)
+	int KillGoal = 10;
 };
