@@ -133,7 +133,10 @@ void ASimpleFPSGameModeBase::StartMatch()
 	*/
 	for (APlayerState* PlayerState : GetGameState<AGameStateBase>()->PlayerArray)
 	{
-		PlayerState->Reset();
+		if (ASimpleFPSPlayerState * FPSPlayerState = Cast<ASimpleFPSPlayerState>(PlayerState))
+		{
+			FPSPlayerState->ResetKD();
+		}
 	}
 
 

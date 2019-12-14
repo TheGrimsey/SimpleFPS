@@ -60,7 +60,7 @@ public:
 
 	virtual void CopyProperties(APlayerState* PlayerState) override;
 
-	virtual void Reset() override;
+	void ResetKD();
 
 	void OnGotKill(ASimpleFPSPlayerState* KilledCharacter);
 

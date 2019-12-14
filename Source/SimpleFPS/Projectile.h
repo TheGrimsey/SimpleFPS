@@ -46,13 +46,13 @@ protected:
     *   Variables
     */
 public:
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
     class UProjectileMovementComponent* ProjectileMovement;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
     class USphereComponent* SphereCollider;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
     class UStaticMeshComponent* MeshComponent;
 
 protected:
@@ -76,11 +76,11 @@ protected:
 	*	INSTANCED
 	*/
     //The character that fired this projectile.
-    UPROPERTY(VisibleInstanceOnly)
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
     TWeakObjectPtr<class ASimpleFPSPlayerState> SourceState;
 
-	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing=OnRep_Team)
-	int Team;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, ReplicatedUsing=OnRep_Team)
+	int Team = -1;
 
 	FOverlapDelegate OverlapDelegate;
 

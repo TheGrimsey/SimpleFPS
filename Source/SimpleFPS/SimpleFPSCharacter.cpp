@@ -91,11 +91,14 @@ void ASimpleFPSCharacter::BeginPlay()
 		GunMesh->SkeletalMesh = GunComponent->GetEquippedWeapon()->GetMesh();
 	}
 
-	//Set timer for ammo regen.
-	static const FName AmmoRegenFunc = TEXT("RegenerateAmmo");
+	if (HasAuthority())
+	{
+		//Set timer for ammo regen.
+		static const FName AmmoRegenFunc = TEXT("RegenerateAmmo");
 
-	FTimerHandle AmmoTimer;
-	GetWorldTimerManager().SetTimer(AmmoTimer, FTimerDelegate::CreateUFunction(this, AmmoRegenFunc), TimeBetweenAmmoRegen, true);
+		FTimerHandle AmmoTimer;
+		GetWorldTimerManager().SetTimer(AmmoTimer, FTimerDelegate::CreateUFunction(this, AmmoRegenFunc), TimeBetweenAmmoRegen, true);
+	}
 
 	Super::BeginPlay();
 }

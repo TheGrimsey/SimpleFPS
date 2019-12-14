@@ -32,12 +32,10 @@ void ASimpleFPSPlayerState::CopyProperties(APlayerState* PlayerState)
 
 }
 
-void ASimpleFPSPlayerState::Reset()
+void ASimpleFPSPlayerState::ResetKD()
 {
 	Kills = 0;
 	Deaths = 0;
-
-	Super::Reset();
 }
 
 void ASimpleFPSPlayerState::OnGotKill(ASimpleFPSPlayerState* KilledCharacter)
