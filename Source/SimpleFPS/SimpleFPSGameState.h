@@ -10,6 +10,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStateAddedRemoved, class AP
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTeamGainedKill, int, Team, int, NewKillCount);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnServerMessage, FText, Message);
+
 /**
  * 
  */
@@ -56,6 +58,9 @@ public:
 	/** Remove PlayerState from the PlayerArray. */
 	virtual void RemovePlayerState(APlayerState* PlayerState);
 
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void MulticastSendServerMessage(const FText& Message);
+
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerStateAddedRemoved OnPlayerStateAdded;
@@ -65,6 +70,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnTeamGainedKill OnTeamGainedKill;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnServerMessage OnServerMessage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
 	int Teams = 4;

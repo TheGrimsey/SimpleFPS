@@ -29,3 +29,8 @@ void ASimpleFPSGameState::RemovePlayerState(APlayerState* PlayerState)
 
 	Super::RemovePlayerState(PlayerState);
 }
+
+void ASimpleFPSGameState::MulticastSendServerMessage_Implementation(const FText& Message)
+{
+	OnServerMessage.Broadcast(Message);
+}

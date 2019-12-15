@@ -56,6 +56,14 @@ public:
     UPROPERTY(EditAnywhere)
     float RespawnTime = 5.f;
 
+	//Time from calling StartMatch() to the game actually starting.
+	UPROPERTY(EditAnywhere)
+	float GameStartDelay = 5.f;
+
+	//Time from calling EndMatch() to the game returning to lobby.
+	UPROPERTY(EditAnywhere)
+	float GameEndDelay = 5.f;
+
 	//Amount of teams in the match.
 	UPROPERTY(EditDefaultsOnly)
 	int Teams = 4;
@@ -65,5 +73,10 @@ public:
 	int KillGoal = 10;
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
+	FText MatchStartText;
+
+	UPROPERTY(EditDefaultsOnly)
+	FText MatchOverText;
 
 };

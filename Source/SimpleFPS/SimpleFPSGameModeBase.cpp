@@ -10,15 +10,20 @@
 #include "UnrealNetwork.h"
 #include "GameFramework/GameSession.h"
 #include "Engine/World.h"
+#include "TimerManager.h"
 
 #include "SimpleFPSPlayerController.h"
 
-ASimpleFPSGameModeBase::ASimpleFPSGameModeBase()
+ASimpleFPSGameModeBase::ASimpleFPSGameModeBase() : AGameModeBase()
 {
 	GameStateClass = ASimpleFPSGameState::StaticClass();
+	PlayerControllerClass = ASimpleFPSPlayerController::StaticClass();
 	PlayerStateClass = ASimpleFPSPlayerState::StaticClass();
 
 	bUseSeamlessTravel = true;
+	bPauseable = false;
+
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 void ASimpleFPSGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -163,13 +168,24 @@ void ASimpleFPSGameModeBase::StartMatch()
 		GameInstance->State = EGameState::GoingToMatch;
 	}
 
-	//Go to game map.
-	ServerTravel(TEXT("TestMap"));
+	//Notify clients that the game is starting.
+	if(ASimpleFPSGameState* FPSGameState = GetGameState<ASimpleFPSGameState>())
+	{
+		FPSGameState->MulticastSendServerMessage(MatchStartText.FormatOrdered(FTextFormat(), GameStartDelay));
+	}
+
+	//Go to game map once time runs out.
+	FTimerHandle handle;
+	GetWorldTimerManager().SetTimer(handle, FTimerDelegate::CreateLambda([this] {
+
+		ServerTravel(TEXT("TestMap"));
+
+	}), GameStartDelay, false);
+
 }
 
 void ASimpleFPSGameModeBase::ServerTravel(const FString MapName)
 {
-
 	GetWorld()->ServerTravel(MapName, false);
 }
 
@@ -190,6 +206,12 @@ void ASimpleFPSGameModeBase::EndMatch(int WinningTeam)
 {
 	if (USimpleFPSGameInstance * GameInstance = GetGameInstance<USimpleFPSGameInstance>())
 	{
+		//If we are already returning to lobby then let's just exit out early here.
+		if (GameInstance->State == EGameState::ReturningLobby)
+		{
+			return;
+		}
+
 		//Save teamkills and deaths.
 		if (ASimpleFPSGameState * FPSGameState = GetGameState<ASimpleFPSGameState>())
 		{
@@ -203,7 +225,19 @@ void ASimpleFPSGameModeBase::EndMatch(int WinningTeam)
 		UE_LOG(LogTemp, Log, TEXT("Setting state to returning to lobby."))
 		GameInstance->State = EGameState::ReturningLobby;
 	}
+	
+	//Notify players the game is ending.
+	if (ASimpleFPSGameState * FPSGameState = GetGameState<ASimpleFPSGameState>())
+	{
+		FPSGameState->MulticastSendServerMessage(MatchOverText);
+	}
 
-	//Return to lobby.
-	ServerTravel(TEXT("Lobby"));
+	//Go to lobby map once time runs out.
+	FTimerHandle handle;
+	GetWorldTimerManager().SetTimer(handle, FTimerDelegate::CreateLambda([this] {
+
+		//Return to lobby.
+		ServerTravel(TEXT("Lobby"));
+
+	}), GameEndDelay, false);
 }

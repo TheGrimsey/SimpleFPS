@@ -49,6 +49,8 @@ public:
 	*	Methods
 	*/
 public:
+	ASimpleFPSPlayerState();
+
 	//Returns true if the other player is friendly to us.
 	UFUNCTION(BlueprintCallable)
 	bool IsFriendly(ASimpleFPSPlayerState* Player)
