@@ -171,7 +171,7 @@ void ASimpleFPSGameModeBase::StartMatch()
 	//Notify clients that the game is starting.
 	if(ASimpleFPSGameState* FPSGameState = GetGameState<ASimpleFPSGameState>())
 	{
-		FPSGameState->MulticastSendServerMessage(MatchStartText.FormatOrdered(FTextFormat(), GameStartDelay));
+		FPSGameState->MulticastSendServerMessage(FText::FormatOrdered(FTextFormat(MatchStartText), GameStartDelay));
 	}
 
 	//Go to game map once time runs out.
