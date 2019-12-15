@@ -15,6 +15,8 @@ class SIMPLEFPS_API ASimpleFPSGameModeBase : public AGameModeBase
     GENERATED_BODY()
 
 public:
+	ASimpleFPSGameModeBase();
+
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
 	virtual void InitGameState() override;
@@ -25,6 +27,7 @@ public:
 
 	virtual FString InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal = TEXT(""));
 
+	//Starts the match. Resets player kills and travels to map.
 	UFUNCTION(BlueprintCallable)
 	void StartMatch();
 
@@ -36,6 +39,10 @@ public:
 
 	UFUNCTION()
 	void OnTeamGainedKill(int Team, int NewKillCount);
+
+	//Ends the match and marks WinningTeam as the winner.
+	UFUNCTION(BlueprintCallable)
+	void EndMatch(int WinningTeam);
 
     /*
     *   Variables
@@ -56,4 +63,7 @@ public:
 	//This is how many kills a team/player must get for the game to end.
 	UPROPERTY(EditDefaultsOnly)
 	int KillGoal = 10;
+
+protected:
+
 };

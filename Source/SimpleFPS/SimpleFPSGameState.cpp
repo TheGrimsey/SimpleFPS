@@ -13,6 +13,7 @@ void ASimpleFPSGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
 	DOREPLIFETIME(ASimpleFPSGameState, TeamKills);
 	DOREPLIFETIME(ASimpleFPSGameState, TeamDeaths);
+	DOREPLIFETIME(ASimpleFPSGameState, WinningTeam);
 }
 
 void ASimpleFPSGameState::AddPlayerState(APlayerState* PlayerState)

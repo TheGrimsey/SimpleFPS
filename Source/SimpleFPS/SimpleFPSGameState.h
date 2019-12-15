@@ -66,8 +66,11 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnTeamGainedKill OnTeamGainedKill;
 
-	UPROPERTY(EditDefaultsOnly, Replicated)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
 	int Teams = 4;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
+	int WinningTeam = -1;
 
 	UPROPERTY(VisibleInstanceOnly, Replicated)
 	TArray<int> TeamKills;

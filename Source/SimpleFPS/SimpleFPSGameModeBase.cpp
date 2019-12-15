@@ -5,6 +5,7 @@
 #include "SimpleFPSPlayerState.h"
 
 #include "SimpleFPSGameState.h"
+#include "SimpleFPSGameInstance.h"
 #include "Kismet/GameplayStatics.h" 
 #include "UnrealNetwork.h"
 #include "GameFramework/GameSession.h"
@@ -12,6 +13,13 @@
 
 #include "SimpleFPSPlayerController.h"
 
+ASimpleFPSGameModeBase::ASimpleFPSGameModeBase()
+{
+	GameStateClass = ASimpleFPSGameState::StaticClass();
+	PlayerStateClass = ASimpleFPSPlayerState::StaticClass();
+
+	bUseSeamlessTravel = true;
+}
 
 void ASimpleFPSGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
@@ -29,6 +37,8 @@ void ASimpleFPSGameModeBase::InitGameState()
 {
 	Super::InitGameState();
 
+	UE_LOG(LogTemp, Log, TEXT("INIT GAMESTATE"))
+
 	if (ASimpleFPSGameState * FPSGameState = GetGameState<ASimpleFPSGameState>())
 	{
 		FPSGameState->Teams = Teams;
@@ -39,6 +49,16 @@ void ASimpleFPSGameModeBase::InitGameState()
 			FScriptDelegate OnTeamKillGainedDelegate;
 			OnTeamKillGainedDelegate.BindUFunction(this, FName(TEXT("OnTeamGainedKill")));
 			FPSGameState->OnTeamGainedKill.Add(OnTeamKillGainedDelegate);
+		}
+
+		if (USimpleFPSGameInstance * GameInstance = GetGameInstance<USimpleFPSGameInstance>())
+		{
+			if (GameInstance->State == EGameState::ReturningLobby)
+			{
+				FPSGameState->TeamKills = GameInstance->LastTeamKills;
+				FPSGameState->TeamDeaths = GameInstance->LastTeamDeaths;
+				FPSGameState->WinningTeam = GameInstance->LastWinner;
+			}
 		}
 	}
 }
@@ -129,7 +149,7 @@ FString ASimpleFPSGameModeBase::InitNewPlayer(APlayerController* NewPlayerContro
 void ASimpleFPSGameModeBase::StartMatch()
 {
 	/*
-	*	Reset playerstates.
+	*	Reset player kills & deaths.
 	*/
 	for (APlayerState* PlayerState : GetGameState<AGameStateBase>()->PlayerArray)
 	{
@@ -138,13 +158,18 @@ void ASimpleFPSGameModeBase::StartMatch()
 			FPSPlayerState->ResetKD();
 		}
 	}
+	if (USimpleFPSGameInstance * GameInstance = GetGameInstance<USimpleFPSGameInstance>())
+	{
+		GameInstance->State = EGameState::GoingToMatch;
+	}
 
-
+	//Go to game map.
 	ServerTravel(TEXT("TestMap"));
 }
 
 void ASimpleFPSGameModeBase::ServerTravel(const FString MapName)
 {
+
 	GetWorld()->ServerTravel(MapName, false);
 }
 
@@ -157,6 +182,28 @@ void ASimpleFPSGameModeBase::OnTeamGainedKill(int Team, int NewKillCount)
 {
 	if (NewKillCount >= KillGoal)
 	{
-		ServerTravel(TEXT("Lobby"));
+		EndMatch(Team);
 	}
+}
+
+void ASimpleFPSGameModeBase::EndMatch(int WinningTeam)
+{
+	if (USimpleFPSGameInstance * GameInstance = GetGameInstance<USimpleFPSGameInstance>())
+	{
+		//Save teamkills and deaths.
+		if (ASimpleFPSGameState * FPSGameState = GetGameState<ASimpleFPSGameState>())
+		{
+			GameInstance->LastTeamKills = FPSGameState->TeamKills;
+			GameInstance->LastTeamDeaths = FPSGameState->TeamDeaths;
+		}
+
+		//Save victor.
+		GameInstance->LastWinner = WinningTeam;
+
+		UE_LOG(LogTemp, Log, TEXT("Setting state to returning to lobby."))
+		GameInstance->State = EGameState::ReturningLobby;
+	}
+
+	//Return to lobby.
+	ServerTravel(TEXT("Lobby"));
 }

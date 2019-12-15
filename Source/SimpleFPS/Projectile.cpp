@@ -121,7 +121,7 @@ void AProjectile::HandleAsyncExplosionOverlap(const FTraceHandle& TraceHandle, F
 				/*
 				*	Check if hit actor is teammate if so let's not grant a kill credit for it.
 				*/
-				bool bShouldGetKillCredit = HitPlayerState && HitPlayerState->Team != Team;
+				bool bShouldGetKillCredit = HitPlayerState && (HitPlayerState->Team != Team || SourceState.IsValid() && SourceState->NoTeam);
 
 				if (bShouldGetKillCredit)
 				{

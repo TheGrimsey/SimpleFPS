@@ -36,6 +36,8 @@ void ASimpleFPSPlayerState::ResetKD()
 {
 	Kills = 0;
 	Deaths = 0;
+
+	ForceNetUpdate();
 }
 
 void ASimpleFPSPlayerState::OnGotKill(ASimpleFPSPlayerState* KilledCharacter)
