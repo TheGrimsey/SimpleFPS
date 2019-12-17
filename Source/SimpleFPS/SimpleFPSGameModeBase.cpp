@@ -77,6 +77,14 @@ void ASimpleFPSGameModeBase::InitGameState()
 void ASimpleFPSGameModeBase::OnPlayerDeath(ASimpleFPSPlayerController* Player, APawn* Pawn)
 {
     //Set the old pawn (now corpse) to be killed after CorpseLifeTime.
+	if (ASimpleFPSGameState * FPSGameState = GetGameState<ASimpleFPSGameState>())
+	{
+		if (ASimpleFPSPlayerState * PlayerState = Player->GetPlayerState<ASimpleFPSPlayerState>())
+		{
+			FPSGameState->AddDeathForTeam(PlayerState->Team);
+		}
+	}
+
 	if (Pawn)
 	{
 		Pawn->SetLifeSpan(CorpseLifeTime);
@@ -184,7 +192,13 @@ void ASimpleFPSGameModeBase::StartMatch()
 	FTimerHandle handle;
 	GetWorldTimerManager().SetTimer(handle, FTimerDelegate::CreateLambda([this] {
 
-		ServerTravel(TEXT("TestMap"));
+		FString URL = TEXT("TestMap");
+		URL.Append(TEXT("?KillGoal="));
+		URL.AppendInt(KillGoal);
+		URL.Append(TEXT("?TeamCount="));
+		URL.AppendInt(Teams);
+
+		ServerTravel(URL);
 
 	}), GameStartDelay, false);
 
