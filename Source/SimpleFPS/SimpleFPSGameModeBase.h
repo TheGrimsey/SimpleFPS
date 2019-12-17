@@ -65,11 +65,11 @@ public:
 	float GameEndDelay = 5.f;
 
 	//Amount of teams in the match.
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int Teams = 4;
 
 	//This is how many kills a team/player must get for the game to end.
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	int KillGoal = 10;
 
 protected:

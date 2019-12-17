@@ -36,6 +36,12 @@ void ASimpleFPSGameModeBase::InitGame(const FString& MapName, const FString& Opt
 	{
 		Teams = FCString::Atoi(*TeamCount);
 	}
+
+	FString KillGoalString = UGameplayStatics::ParseOption(Options, TEXT("KillGoal"));
+	if (!KillGoalString.IsEmpty() && FCString::IsNumeric(*KillGoalString))
+	{
+		KillGoal = FCString::Atoi(*KillGoalString);
+	}
 }
 
 void ASimpleFPSGameModeBase::InitGameState()
