@@ -9,11 +9,12 @@ void ASimpleFPSGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME_CONDITION(ASimpleFPSGameState, KillGoal, COND_InitialOnly);
 	DOREPLIFETIME_CONDITION(ASimpleFPSGameState, Teams, COND_InitialOnly);
+	DOREPLIFETIME_CONDITION(ASimpleFPSGameState, WinningTeam, COND_InitialOnly);
 
 	DOREPLIFETIME(ASimpleFPSGameState, TeamKills);
 	DOREPLIFETIME(ASimpleFPSGameState, TeamDeaths);
-	DOREPLIFETIME(ASimpleFPSGameState, WinningTeam);
 }
 
 void ASimpleFPSGameState::AddPlayerState(APlayerState* PlayerState)

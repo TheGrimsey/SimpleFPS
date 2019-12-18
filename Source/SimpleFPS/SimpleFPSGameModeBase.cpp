@@ -52,6 +52,7 @@ void ASimpleFPSGameModeBase::InitGameState()
 
 	if (ASimpleFPSGameState * FPSGameState = GetGameState<ASimpleFPSGameState>())
 	{
+		FPSGameState->KillGoal = KillGoal;
 		FPSGameState->Teams = Teams;
 		FPSGameState->TeamKills.Init(0, Teams);
 		FPSGameState->TeamDeaths.Init(0, Teams);

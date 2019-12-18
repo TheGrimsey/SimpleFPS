@@ -74,6 +74,10 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnServerMessage OnServerMessage;
 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
+	int KillGoal = 4;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated)
 	int Teams = 4;
 
